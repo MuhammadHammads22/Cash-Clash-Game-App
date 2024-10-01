@@ -1,11 +1,18 @@
 // screens/WelcomeScreen.js
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, Image, Animated, Dimensions } from 'react-native';
+import React, { useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  Animated,
+  useWindowDimensions,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import Button from '../components/Button';
 import tw from 'twrnc';
 import { useNavigation } from '@react-navigation/native';
-
-const { width, height } = Dimensions.get('window');
+import { Ionicons } from '@expo/vector-icons';
 
 const slides = [
   {
@@ -18,7 +25,7 @@ const slides = [
     key: 'slide2',
     title: 'Connect with Players',
     text: 'Join a community of passionate gamers.',
-    image: require('../assets/images/chess.jpeg'),
+    image: require('../assets/images/chessw.jpeg'),
   },
   {
     key: 'slide3',
@@ -30,181 +37,116 @@ const slides = [
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
+  const { width, height } = useWindowDimensions();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const flatListRef = useRef(null);
 
-  // Animation references
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const imageScaleYAnim = useRef(new Animated.Value(1)).current;
-
-  // Animation references for slide indicators
-  const indicatorsAnim = useRef(
-    slides.map((_, index) => new Animated.Value(index === 0 ? 1 : 0))
-  ).current;
+  // Calculate dimensions for partial visibility
+  const ITEM_WIDTH = width * 0.8;
+  const ITEM_SPACING = (width - ITEM_WIDTH) / 2;
 
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
-      // Animate indicator out
-      Animated.timing(indicatorsAnim[currentSlide], {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-
-      // Animate fade out, slide left, scale down, rotate, and increase image height
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: -width,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 0.8,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(imageScaleYAnim, {
-          toValue: 1.1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        // Update slide index and reset animations
-        const nextSlide = currentSlide + 1;
-        setCurrentSlide(nextSlide);
-
-        // Animate next indicator in
-        Animated.timing(indicatorsAnim[nextSlide], {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: false,
-        }).start();
-
-        fadeAnim.setValue(0);
-        slideAnim.setValue(width);
-        scaleAnim.setValue(0.8);
-        rotateAnim.setValue(-1);
-        imageScaleYAnim.setValue(0.9);
-
-        // Animate fade in, slide to center, scale up, rotate back, and normalize image height
-        Animated.parallel([
-          Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(slideAnim, {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleAnim, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(rotateAnim, {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(imageScaleYAnim, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-        ]).start();
-      });
+      const nextSlide = currentSlide + 1;
+      flatListRef.current.scrollToIndex({ index: nextSlide, animated: true });
+      setCurrentSlide(nextSlide);
     } else {
-      // Navigate to Home or desired screen
+      // Navigate to Login or desired screen
       navigation.navigate('Login');
     }
   };
 
-  // Rotate the slide between -15 to 15 degrees for a 3D effect
-  const rotate = rotateAnim.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ['-15deg', '0deg', '15deg'],
-  });
-
-  return (
-    <View style={tw`flex-1 bg-gray-900 px-4`}>
-      <View style={tw`items-center mt-10`}>
-        <Image
-          source={require('../assets/images/1xwin-1.png')}
-          style={tw`w-24 h-24`}
-          resizeMode="contain"
-        />
-      </View>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+  const renderItem = ({ item, index }) => {
+    // Optional: Add scaling animation to the centered slide
+    const scale = currentSlide === index ? 1 : 0.9;
+    return (
+      <View style={{ width: ITEM_WIDTH, alignItems: 'center' }}>
         <Animated.View
           style={{
-            transform: [
-              { translateX: slideAnim },
-              { scale: scaleAnim },
-              { rotateY: rotate },
-              { scaleY: imageScaleYAnim },
-            ],
-            opacity: fadeAnim,
+            transform: [{ scale }],
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 5,
           }}
         >
           <Image
-            source={slides[currentSlide].image}
-            style={[
-              {
-                width: width * 0.9,
-                height: height * 0.60,
-                borderRadius: 40,
-                borderWidth: 2,
-                borderColor: '#111827',
-              },
-            ]}
+            source={item.image}
+            style={{
+              width: ITEM_WIDTH,
+              height: height * 0.5,
+              borderRadius: 20,
+              borderWidth: 2,
+              borderColor: '#111827',
+            }}
             resizeMode="cover"
           />
         </Animated.View>
-        <Text style={tw`text-white text-2xl font-bold mt-8 text-center px-4`}>
-          {slides[currentSlide].text}
+        <Text
+          style={{
+            ...tw`text-white font-bold mt-8 text-center px-4`,
+            fontSize: width * 0.05, // Responsive font size
+            marginTop: height * 0.02,
+          }}
+        >
+          {item.text}
         </Text>
       </View>
+    );
+  };
+
+  const keyExtractor = (item) => item.key;
+
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+      setCurrentSlide(viewableItems[0].index);
+    }
+  }).current;
+
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+
+  return (
+    <View style={tw`flex-1 bg-gray-900 px-0`}>
+      {/* Logo */}
+      <View style={{ alignItems: 'center', marginTop: height * 0.05 }}>
+        <Image
+          source={require('../assets/images/1xwin-1.png')}
+          style={{ width: Math.max(width * 0.2, 100), height: Math.max(width * 0.4, 100) }}
+          resizeMode="contain"
+        />
+      </View>
+
+      {/* Carousel */}
+      <FlatList
+        ref={flatListRef}
+        data={slides}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={ITEM_WIDTH}
+        decelerationRate="fast"
+        contentContainerStyle={{
+          paddingHorizontal: ITEM_SPACING,
+        }}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewConfigRef}
+      />
 
       {/* Slide Indicators */}
-      <View style={tw`flex-row justify-center mb-3`}>
+      <View style={[tw`flex-row justify-center mt-4`, { marginBottom: height * 0.02 }]}>
         {slides.map((_, index) => {
-          const widthAnim = indicatorsAnim[index].interpolate({
-            inputRange: [0, 1],
-            outputRange: [8, 16], // Width from 8 to 16
-          });
-          const opacityAnim = indicatorsAnim[index].interpolate({
-            inputRange: [0, 1],
-            outputRange: [0.5, 1],
-          });
-
+          const isActive = index === currentSlide;
           return (
-            <Animated.View
+            <View
               key={index}
               style={[
-                tw`h-2 rounded-full mx-1 bg-yellow-300`,
+                tw`h-2 rounded-full mx-1`,
                 {
-                  width: widthAnim,
-                  opacity: opacityAnim,
+                  width: isActive ? 16 : 8,
+                  backgroundColor: isActive ? '#FBBF24' : '#D1D5DB', // Yellow-300 or Gray-300
                 },
               ]}
             />
@@ -212,12 +154,15 @@ const WelcomeScreen = () => {
         })}
       </View>
 
-      <Button
-        title={currentSlide === slides.length - 1 ? 'Start Experience' : 'Next'}
-        onPress={handleNext}
-        style={tw`w-full bg-yellow-300 mb-6`}
-        textStyle={tw`text-black font-bold`}
-      />
+      {/* Next Button */}
+      <View style={{ paddingHorizontal: 20, marginBottom: height * 0.03 }}>
+        <Button
+          title={currentSlide === slides.length - 1 ? 'Start Experience' : 'Next'}
+          onPress={handleNext}
+          style={tw`bg-yellow-300 rounded-lg`}
+          textStyle={tw`text-black font-bold text-lg`}
+        />
+      </View>
     </View>
   );
 };

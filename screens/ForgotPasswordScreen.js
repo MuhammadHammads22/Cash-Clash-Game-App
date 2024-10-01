@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 import Button from '../components/Button';
 import tw from 'twrnc';
@@ -18,6 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
+  const { width, height } = useWindowDimensions();
   const [email, setEmail] = useState('');
 
   const handleResetPassword = () => {
@@ -32,6 +34,14 @@ const ForgotPasswordScreen = () => {
       Alert.alert('Error', 'Please enter your email address.');
     }
   };
+
+  // Dynamic styles based on screen dimensions
+  const logoSize = width * 0.2; // 20% of screen width
+  const inputHeight = height * 0.07; // 7% of screen height
+  const fontSize = width * 0.045; // Adjust font size based on width
+  const iconSize = width * 0.06; // 6% of screen width
+  const buttonHeight = height * 0.07; // 7% of screen height
+  const borderRadius = width * 0.05; // 5% of screen width
 
   return (
     <KeyboardAvoidingView
@@ -48,26 +58,38 @@ const ForgotPasswordScreen = () => {
           <View style={tw`items-center mb-6 mt-6`}>
             <Image
               source={require('../assets/images/1xwin-1.png')}
-              style={tw`w-32 h-32`}
+              style={{ width: logoSize, height: logoSize }}
               resizeMode="contain"
             />
           </View>
 
           {/* Heading */}
-          <Text style={tw`text-white text-3xl font-bold mb-6 text-center`}>
+          <Text style={{
+            ...tw`text-white text-3xl font-bold mb-6 text-center`,
+            fontSize: width * 0.07, // Responsive font size
+          }}>
             Reset Password
           </Text>
 
           {/* Instruction Text */}
-          <Text style={tw`text-gray-400 mb-6 text-center`}>
+          <Text style={{
+            ...tw`text-gray-400 mb-6 text-center`,
+            fontSize: width * 0.04, // Responsive font size
+          }}>
             Enter your email address and we'll send you a link to reset your password.
           </Text>
 
           {/* Email Input */}
-          <View style={tw`flex-row items-center bg-gray-800 rounded-lg mb-6 px-4`}>
-            <Ionicons name="mail-outline" size={24} color="#aaa" style={tw`mr-2`} />
+          <View style={{
+            ...tw`flex-row items-center bg-gray-800 rounded-lg mb-6 px-4`,
+            height: inputHeight,
+          }}>
+            <Ionicons name="mail-outline" size={iconSize} color="#aaa" style={tw`mr-2`} />
             <TextInput
-              style={tw`flex-1 text-white py-3`}
+              style={{
+                ...tw`flex-1 text-white`,
+                fontSize: width * 0.045, // Responsive font size
+              }}
               placeholder="Email"
               placeholderTextColor="#aaa"
               keyboardType="email-address"
@@ -81,14 +103,24 @@ const ForgotPasswordScreen = () => {
           <Button
             title="Send Reset Link"
             onPress={handleResetPassword}
-            style={tw`bg-yellow-300 py-4 rounded-lg mb-6`}
-            textStyle={tw`text-black font-bold text-lg`}
+            style={{
+              ...tw`bg-yellow-300 rounded-lg mb-6`,
+              height: buttonHeight,
+              borderRadius: borderRadius,
+            }}
+            textStyle={{
+              ...tw`text-black font-bold text-lg`,
+              fontSize: width * 0.05, // Responsive font size
+            }}
           />
         </View>
 
         {/* Back to Login Link at the Bottom */}
         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={tw`mb-4`}>
-          <Text style={tw`text-center text-white`}>
+          <Text style={{
+            ...tw`text-center text-white`,
+            fontSize: width * 0.04, // Responsive font size
+          }}>
             Remembered your password?{' '}
             <Text style={tw`text-yellow-400 font-semibold`}>Login</Text>
           </Text>

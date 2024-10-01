@@ -3,9 +3,7 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import { Ionicons } from '@expo/vector-icons';
-
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
@@ -38,9 +36,9 @@ const AppNavigator = () => {
         screenOptions={({ navigation }) => ({
           headerStyle: { backgroundColor: '#1E1E1E' },
           headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontFamily: 'Poppins-Bold',
-          },
+          // headerTitleStyle: {
+          //   fontFamily: 'Poppins-Bold',
+          // },
           headerLeft: () => <CustomBackButton navigation={navigation} />,
         })}
       >
