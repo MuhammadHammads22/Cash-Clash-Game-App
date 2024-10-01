@@ -1,6 +1,8 @@
+// screens/ProfileScreen.js
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, Alert } from 'react-native';
 import Button from '../components/Button';
+import tw from 'twrnc';
 
 const ProfileScreen = ({ navigation }) => {
   const handleLogout = () => {
@@ -10,16 +12,24 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   return (
-    <View className="flex-1 bg-gray-900 p-6 items-center">
+    <View style={tw`flex-1 bg-gray-900 p-6 items-center`}>
       <Image
         source={require('../assets/images/profile.png')} // Ensure you have a profile image
-        className="w-24 h-24 rounded-full mb-4"
+        style={tw`w-24 h-24 rounded-full mb-4`}
         resizeMode="cover"
       />
-      <Text className="text-white text-2xl font-semibold mb-2">Username</Text>
-      <Text className="text-gray-400 text-lg mb-6">user@example.com</Text>
-      <Button title="Edit Profile" onPress={() => Alert.alert('Edit Profile', 'Feature coming soon!')} style="w-full mb-4" />
-      <Button title="Logout" onPress={handleLogout} style="w-full bg-red-500" />
+      <Text style={tw`text-white text-2xl font-semibold mb-2`}>Username</Text>
+      <Text style={tw`text-gray-400 text-lg mb-6`}>user@example.com</Text>
+      <Button
+        title="Edit Profile"
+        onPress={() => Alert.alert('Edit Profile', 'Feature coming soon!')}
+        style={tw`w-full mb-4`}
+      />
+      <Button
+        title="Logout"
+        onPress={handleLogout}
+        style={tw`w-full bg-red-500`}
+      />
     </View>
   );
 };

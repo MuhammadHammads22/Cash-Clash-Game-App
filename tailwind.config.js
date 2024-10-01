@@ -8,5 +8,5 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [], // Ensure this is empty or contains only synchronous plugins
 };
