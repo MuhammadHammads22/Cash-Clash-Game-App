@@ -7,7 +7,7 @@ const Button = ({ title, onPress, style, textStyle }) => {
   const { width, height } = useWindowDimensions();
 
   // Dynamic styles based on screen dimensions
-  const paddingVertical = height * 0.02; // 2% of screen height
+  const paddingVertical = height * 0.013; // 2% of screen height
   const borderRadius = width * 0.05; // 5% of screen width
   const fontSize = width * 0.045; // Adjust font size based on width
 

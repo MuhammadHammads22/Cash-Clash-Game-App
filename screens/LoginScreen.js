@@ -155,7 +155,7 @@ const LoginScreen = () => {
             height: buttonHeight,
           }}
           textStyle={{
-            ...tw`text-black font-bold text-lg`,
+            ...tw`text-black font-bold text-lg leading-relaxed`,
             fontSize: width * 0.05, // Responsive font size
           }}
         />
