@@ -7,12 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
-import HomeScreen from '../screens/HomeScreen';
 import GamePlayScreen from '../screens/GamePlayScreen';
-import LeaderboardScreen from '../screens/LeaderboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CurrencyScreen from '../screens/CurrencyScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import HomeGraph from '../screens/HomeGraph';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,14 +32,15 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Welcome"
+        initialRouteName="HomeGraph"
         screenOptions={({ navigation }) => ({
-          headerStyle: { backgroundColor: '#1E1E1E' },
-          headerTintColor: '#fff',
-          // headerTitleStyle: {
-          //   fontFamily: 'Poppins-Bold',
-          // },
-          headerLeft: () => <CustomBackButton navigation={navigation} />,
+          headerShown:false
+          // headerStyle: { backgroundColor: '#1E1E1E' },
+          // headerTintColor: '#fff',
+          // // headerTitleStyle: {
+          // //   fontFamily: 'Poppins-Bold',
+          // // },
+          // headerLeft: () => <CustomBackButton navigation={navigation} />,
         })}
       >
         <Stack.Screen
@@ -63,25 +64,21 @@ const AppNavigator = () => {
           options={{ title: 'Forgot Password' }}
         />
         <Stack.Screen
-          name="Home"
-          component={HomeScreen}
+          name="HomeGraph"
+          component={HomeGraph}
           options={{
-            title: 'GamingZone',
-            headerLeft: null, // Disable back button
+            headerShown: false
+            // headerLeft: null, // Disable back button
           }}
         />
         <Stack.Screen
           name="GamePlay"
           component={GamePlayScreen}
           options={({ route }) => ({
-            title: route.params.game,
+            // title: route.params.game,
           })}
         />
-        <Stack.Screen
-          name="Leaderboard"
-          component={LeaderboardScreen}
-          options={{ title: 'Leaderboard' }}
-        />
+       
         <Stack.Screen
           name="Profile"
           component={ProfileScreen}
@@ -91,6 +88,14 @@ const AppNavigator = () => {
           name="Currency"
           component={CurrencyScreen}
           options={{ title: 'In-App Currency' }}
+        />
+        <Stack.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            headerShown: true
+            // headerLeft: null, // Disable back button
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
