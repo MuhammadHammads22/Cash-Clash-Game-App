@@ -126,7 +126,7 @@ const WelcomeScreen = () => {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        snapToInterval={ITEM_WIDTH}
+        snapToInterval={ITEM_WIDTH+100}
         decelerationRate="fast"
         contentContainerStyle={{
           paddingHorizontal: ITEM_SPACING,

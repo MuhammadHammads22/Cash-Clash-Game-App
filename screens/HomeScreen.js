@@ -20,6 +20,7 @@ const handleSettingClick=()=>{
 }
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView>
       <View style={{ flex: 1, backgroundColor: '#050B18', paddingVertical: responsiveHeight(3), paddingHorizontal: responsiveWidth(3) }}>
         {/* HEADER */}
 
@@ -30,9 +31,9 @@ const handleSettingClick=()=>{
               style={{
                 borderRadius: responsiveWidth(10),
                 resizeMode: 'contain',
-                width: responsiveWidth(18), // Responsive width
-                height: responsiveWidth(18), // Maintain aspect ratio
-                marginRight: responsiveWidth(5)
+                width: responsiveWidth(19), // Responsive width
+                height: responsiveWidth(19), // Maintain aspect ratio
+                marginRight: responsiveWidth(7)
               }}
             />
             {/* USERNAME VIEW */}
@@ -76,7 +77,7 @@ const handleSettingClick=()=>{
           </View>
         </View>
         <View style={{ marginHorizontal: responsiveWidth(1.5), marginTop: responsiveHeight(1), padding: responsiveWidth(2) }}><Text style={{ color: 'white', fontWeight: 'bold', fontSize: responsiveWidth(5) }}>Games</Text></View>
-        <View style={{ height: responsiveHeight(15), marginHorizontal: responsiveWidth(-3) }}>
+        <View style={{ height: responsiveHeight(18), marginHorizontal: responsiveWidth(-3) }}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1, marginBottom: responsiveHeight(2.5), padding: responsiveWidth(1), flexDirection: 'row' }}>
             {/* <View style={{flexDirection:'row',alignItems:'center',marginVertical:responsiveHeight(3),padding:responsiveWidth(2)}}> */}
             {
@@ -143,7 +144,7 @@ const handleSettingClick=()=>{
         </View>
 
       </View>
-
+      </ScrollView>
     </SafeAreaView>
 
   )

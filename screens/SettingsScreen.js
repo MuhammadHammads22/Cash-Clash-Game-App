@@ -5,12 +5,15 @@ import Material from 'react-native-vector-icons/MaterialIcons'
 import Entypo from 'react-native-vector-icons/Entypo'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import ToggleSwitch from 'toggle-switch-react-native'
+import Feather from 'react-native-vector-icons/Feather'
 
 
 const SettingsScreen = ({ navigation }) => {
 
   const [toggleState,setToggleState]=useState(false)
-
+ const handleUpdateProfileNavigation=()=>{
+  navigation.navigate('UpdateProfile')
+ }
   useLayoutEffect(() => {
     navigation.setOptions({
       title: 'Settings', // Centered title
@@ -38,7 +41,8 @@ const SettingsScreen = ({ navigation }) => {
       {/* SettingsList */}
       <View style={{ marginVertical: responsiveHeight(4) }}>
         {/* Darkmode Setting */}
-        <View style={{ padding: responsiveWidth(6), alignItems: 'center', justifyContent: 'space-between',flexDirection:'row',borderBottomColor:"gray",borderBottomWidth:1 }}>
+        <TouchableOpacity onPress={()=>{setToggleState(!toggleState)}}>
+        <View style={{ padding: responsiveWidth(6), alignItems: 'center', justifyContent: 'space-between',flexDirection:'row',borderBottomColor:"gray",borderBottomWidth:.5 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <Material name='dark-mode' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
             <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Dark Mode</Text>
@@ -54,27 +58,43 @@ const SettingsScreen = ({ navigation }) => {
           />
 
         </View>
-        
+        </TouchableOpacity>
+
+        <TouchableOpacity>
         <View style={{ padding: responsiveWidth(6), alignItems: 'center', justifyContent: 'space-between',flexDirection:'row',borderBottomColor:"gray",borderBottomWidth:.5 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <Material name='security' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
             <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Privacy Settings</Text>
           </View>
         </View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity>
         <View style={{ padding: responsiveWidth(6), alignItems: 'center', justifyContent: 'space-between',flexDirection:'row',borderBottomColor:"gray",borderBottomWidth:.5 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <Entypo name='sound-mix' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
             <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Game Settings</Text>
           </View>
         </View>
-        
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleUpdateProfileNavigation} >
+        <View style={{ padding: responsiveWidth(6), alignItems: 'center', justifyContent: 'space-between',flexDirection:'row',borderBottomColor:"gray",borderBottomWidth:.5 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <Feather name='user' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
+            <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Update Profile</Text>
+          </View>
+        </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity>
         <View style={{ padding: responsiveWidth(6), alignItems: 'center', justifyContent: 'space-between',flexDirection:'row',borderBottomColor:"gray",borderBottomWidth:.5 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <Material name='logout' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
             <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Logout</Text>
           </View>
         </View>
-
+        </TouchableOpacity>
 
       </View>
     </View>

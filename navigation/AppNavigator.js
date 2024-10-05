@@ -8,11 +8,11 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import GamePlayScreen from '../screens/GamePlayScreen';
-import ProfileScreen from '../screens/ProfileScreen';
 import CurrencyScreen from '../screens/CurrencyScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import HomeGraph from '../screens/HomeGraph';
 import SettingsScreen from '../screens/SettingsScreen';
+import UpdateProfileScreen from '../screens/UpdateProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +32,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="HomeGraph"
+        initialRouteName="Welcome"
         screenOptions={({ navigation }) => ({
           headerShown:false
           // headerStyle: { backgroundColor: '#1E1E1E' },
@@ -80,9 +80,11 @@ const AppNavigator = () => {
         />
        
         <Stack.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{ title: 'Profile' }}
+          name="UpdateProfile"
+          component={UpdateProfileScreen}
+          options={{ title: 'Update Profile' ,
+            headerShown: true
+          }}
         />
         <Stack.Screen
           name="Currency"

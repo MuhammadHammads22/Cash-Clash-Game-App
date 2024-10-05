@@ -54,8 +54,8 @@ const LoginScreen = () => {
 
   const handleLogin = () => {
     // Placeholder login logic
-    if (email === 'user@example.com' && password === 'password') {
-      navigation.navigate('Home');
+    if (true) {
+      navigation.navigate('HomeGraph');
     } else {
       Alert.alert('Login Failed', 'Invalid email or password.');
     }
