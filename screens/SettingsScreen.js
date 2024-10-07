@@ -6,6 +6,7 @@ import Entypo from 'react-native-vector-icons/Entypo'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import ToggleSwitch from 'toggle-switch-react-native'
 import Feather from 'react-native-vector-icons/Feather'
+import { CommonActions } from '@react-navigation/native'
 
 
 const SettingsScreen = ({ navigation }) => {
@@ -14,6 +15,14 @@ const SettingsScreen = ({ navigation }) => {
  const handleUpdateProfileNavigation=()=>{
   navigation.navigate('UpdateProfile')
  }
+ const handleLogOut = () => {
+  navigation.dispatch(
+    CommonActions.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    })
+  );
+};
   useLayoutEffect(() => {
     navigation.setOptions({
       title: 'Settings', // Centered title
@@ -66,6 +75,7 @@ const SettingsScreen = ({ navigation }) => {
             <Material name='security' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
             <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Privacy Settings</Text>
           </View>
+          <Entypo name='chevron-small-right' size={responsiveWidth(7)} color='white'/>
         </View>
         </TouchableOpacity>
         
@@ -75,6 +85,7 @@ const SettingsScreen = ({ navigation }) => {
             <Entypo name='sound-mix' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
             <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Game Settings</Text>
           </View>
+          <Entypo name='chevron-small-right' size={responsiveWidth(7)} color='white'/>
         </View>
         </TouchableOpacity>
 
@@ -84,11 +95,12 @@ const SettingsScreen = ({ navigation }) => {
             <Feather name='user' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
             <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Update Profile</Text>
           </View>
+          <Entypo name='chevron-small-right' size={responsiveWidth(7)} color='white'/>
         </View>
         </TouchableOpacity>
 
-        <TouchableOpacity>
-        <View style={{ padding: responsiveWidth(6), alignItems: 'center', justifyContent: 'space-between',flexDirection:'row',borderBottomColor:"gray",borderBottomWidth:.5 }}>
+        <TouchableOpacity onPress={handleLogOut}>
+        <View  style={{ padding: responsiveWidth(6), alignItems: 'center', justifyContent: 'space-between',flexDirection:'row',borderBottomColor:"gray",borderBottomWidth:.5 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <Material name='logout' style={{ marginRight: responsiveWidth(5) }} size={responsiveWidth(7)} color="white" />
             <Text style={{ color: 'white', fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}>Logout</Text>

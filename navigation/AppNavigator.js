@@ -32,7 +32,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Welcome"
+        initialRouteName="HomeGraph"
         screenOptions={({ navigation }) => ({
           headerShown:false
           // headerStyle: { backgroundColor: '#1E1E1E' },

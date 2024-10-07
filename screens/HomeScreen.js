@@ -19,20 +19,20 @@ const handleSettingClick=()=>{
   navigation.navigate('Settings')
 }
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 , backgroundColor: '#050B18'}}>
       <ScrollView>
-      <View style={{ flex: 1, backgroundColor: '#050B18', paddingVertical: responsiveHeight(3), paddingHorizontal: responsiveWidth(3) }}>
+      <View style={{ flex: 1, backgroundColor: '#050B18', paddingVertical: responsiveHeight(1.5), paddingHorizontal: responsiveWidth(3) }}>
         {/* HEADER */}
 
-        <View style={{ borderRadius: responsiveWidth(5), justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', padding: responsiveWidth(3), marginVertical: responsiveHeight(3) }}>
+        <View style={{borderRadius: responsiveWidth(5), justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', padding: responsiveWidth(2), marginVertical: responsiveHeight(2) }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
               source={require('../assets/images/UserImage.png')} // Adjust the path as necessary
               style={{
                 borderRadius: responsiveWidth(10),
                 resizeMode: 'contain',
-                width: responsiveWidth(19), // Responsive width
-                height: responsiveWidth(19), // Maintain aspect ratio
+                width: responsiveWidth(17), // Responsive width
+                height: responsiveWidth(17), // Maintain aspect ratio
                 marginRight: responsiveWidth(7)
               }}
             />
@@ -44,8 +44,8 @@ const handleSettingClick=()=>{
           </View>
           {/* ICON VIEW */}
           <TouchableOpacity onPress={handleSettingClick}>
-          <View style={{ padding: responsiveWidth(3), backgroundColor: '#1F2430', borderRadius: responsiveHeight(10) }}>
-            <IonIcons name='settings' size={responsiveHeight(3)} color='gray' />
+          <View style={{ padding: responsiveWidth(2), backgroundColor: '#1F2430', borderRadius: responsiveHeight(10) }}>
+            <IonIcons name='settings' size={responsiveHeight(2.5)} color='gray' />
           </View>
           </TouchableOpacity>
         </View>
@@ -156,8 +156,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   user: {
-    description: { fontSize: responsiveHeight(2), color: 'gray' }
-    , heading: { fontSize: responsiveHeight(3), fontWeight: 'bold', color: 'white' }
+    description: { fontSize: responsiveHeight(1.2), color: 'gray' }
+    , heading: { fontSize: responsiveHeight(2.2), fontWeight: 'bold', color: 'white' }
   },
 
   body: { padding: responsiveWidth(4), alignItems: 'center', justifyContent: 'center', backgroundColor: 'red' },

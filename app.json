@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Gameapp",
-    "slug": "Gameapp",
+    "slug": "gameapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -26,8 +26,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "5d332951-af6b-4f4a-a5ff-4d7b63f90fc0"
+        "projectId": "83ef1732-fc3e-4407-99ad-d23250713699"
       }
-    }
+    },
+    "owner": "expohammad"
   }
 }

@@ -31,6 +31,7 @@ const HomeGraph = ({ navigation }) => {
           elevation: 4,
           bottom: Platform.OS === 'ios' ? responsiveHeight(-2) : 0,
         },
+        
         headerShown:false,
         // tabBarActiveTintColor: 'white', // Active icon color
         // tabBarInactiveTintColor: 'gray', // Inactive icon color
