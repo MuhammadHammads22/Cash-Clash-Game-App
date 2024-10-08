@@ -7,7 +7,7 @@ const LeaderBoardListItem = ({data}) => {
   return (
     <View style={{flexDirection:'row',marginBottom:responsiveHeight(1),justifyContent:'space-between',alignItems:'center',padding:responsiveWidth(2),borderColor:'gray',borderWidth:2,backgroundColor:data?.currentPlayer?'#F4D144':'#050B18',borderRadius:responsiveWidth(4)}}>
         <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-            <Text style={{fontSize:responsiveWidth(4),fontWeight:"bold",color:'white',marginRight:responsiveWidth(2)}}>{data.position}</Text>
+            <Text style={{width:responsiveWidth(8),fontSize:responsiveWidth(4),fontWeight:"bold",color:'white',marginHorizontal:responsiveWidth(2)}}>{data.position}</Text>
             <Image
               source={thirdPosition} // Adjust the path as necessary
               style={{

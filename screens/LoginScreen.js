@@ -75,7 +75,7 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={tw`flex-1 bg-gray-900`}
+      style={[tw`flex-1 bg-gray-900`,{backgroundColor:'#050B18'}]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={tw`flex-1 justify-center px-6`}>
@@ -151,8 +151,8 @@ const LoginScreen = () => {
           title="Login"
           onPress={handleLogin}
           style={{
-            ...tw`bg-yellow-300 rounded-lg mb-6`,
-            height: buttonHeight,
+            ...tw`bg-yellow-300 items-center py-4 rounded-lg mb-6`,
+         
           }}
           textStyle={{
             ...tw`text-black font-bold text-lg leading-relaxed`,

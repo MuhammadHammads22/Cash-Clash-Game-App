@@ -1,3 +1,4 @@
+
 // screens/RegisterScreen.js
 import React, { useState } from 'react';
 import {
@@ -44,7 +45,7 @@ const RegisterScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={tw`flex-1 bg-gray-900`}
+      style={[tw`flex-1 bg-gray-900`,{backgroundColor:'#050B18'}]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -140,7 +141,7 @@ const RegisterScreen = () => {
             title="Register"
             onPress={handleRegister}
             style={{
-              ...tw`bg-yellow-300 rounded-lg mb-6`,
+              ...tw`bg-yellow-300 items-center py-4 rounded-lg mb-6`,
               height: buttonHeight,
               borderRadius: borderRadius,
             }}

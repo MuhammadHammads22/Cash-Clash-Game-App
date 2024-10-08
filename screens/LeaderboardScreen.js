@@ -36,7 +36,7 @@ const LeaderboardScreen = () => {
 
 
       {/* Top 3 View */}
-      <View style={{ height:responsiveHeight(27.5),justifyContent: 'space-evenly', flexDirection: 'row', alignItems: 'center', paddingHorizontal: responsiveWidth(4), marginVertical: responsiveHeight(2) }}>
+      <View style={{ height:responsiveHeight(27.5),justifyContent: 'space-evenly', flexDirection: 'row', alignItems: 'center', paddingHorizontal: responsiveWidth(4), marginVertical: responsiveHeight(2),marginBottom:responsiveHeight(4) }}>
 
         {/* 2nd */}
         <View style={{ justifyContent: 'center', alignItems: 'center', transform: [{ translateY: responsiveHeight(4) }] }}>
