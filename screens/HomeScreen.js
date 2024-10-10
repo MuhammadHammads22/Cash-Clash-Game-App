@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, SafeAreaView, KeyboardAvoidingView, ScrollView, TouchableOpacity, StatusBar } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import ludo from '../assets/images/ludoIcon.png'
@@ -13,15 +13,24 @@ import eventBackgammon from '../assets/images/eventBackGammon.png'
 
 
 const HomeScreen = ({ navigation }) => {
-  const gamesData = [{ name: 'Chess', logo: chess }, { name: 'Ludo', logo: ludo }, { name: 'Backgammon', logo: backgammon }, { name: 'Dominoes', logo: dominoes }]
   const eventsData = [{ event: 'Chess', Image: eventChess }, { event: 'BackGammon', Image: eventBackgammon }]
+  const playerCategory = [{ index: 1, category: 'All' }, { index: 2, category: 'Double Player' }, { index: 3, category: 'Multi Player' }]
+  const [selectedplayerCategory, setSelectedplayerCategory] = useState(1)
+  // const doublePlayerGames=[{ name: 'Chess', Image: chess }, { name: 'BackGammon', Image: backgammon }]
+  // const multiPlayerGames=[{ name: 'Ludo', Image: ludo }, { name: 'Dominoes', Image: dominoes }]
+  const gamesData = selectedplayerCategory == 1 ? [{ name: 'Chess', logo: chess }, { name: 'Ludo', logo: ludo }, { name: 'Backgammon', logo: backgammon }, { name: 'Dominoes', logo: dominoes }] : selectedplayerCategory == 2 ? [{ name: 'Chess', logo: chess }, { name: 'BackGammon', logo: backgammon }] : [{ name: 'Ludo', logo: ludo }, { name: 'Dominoes', logo: dominoes }]
+
+
   const handleSettingClick = () => {
     navigation.navigate('Settings')
   }
+  const handleGamesClick = () => {
+    navigation.navigate('BottomSheet')
+  }
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#050B18'}}>
-      {/* <StatusBar barStyle="dark-content" backgroundColor="gray" /> */}
-       <ScrollView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#050B18' }}>
+      <StatusBar barStyle="light-content" backgroundColor="black" />
+      <ScrollView>
         <View style={{ flex: 1, backgroundColor: '#050B18', paddingVertical: responsiveHeight(1), paddingHorizontal: responsiveWidth(3) }}>
           {/* HEADER */}
 
@@ -77,7 +86,110 @@ const HomeScreen = ({ navigation }) => {
               />
             </View>
           </View>
-          <View style={{ marginHorizontal: responsiveWidth(1.5), marginTop: responsiveHeight(1), padding: responsiveWidth(2) }}><Text style={{ color: 'white', fontWeight: 'bold', fontSize: responsiveWidth(5) }}>Games</Text></View>
+
+
+
+          <View style={{ marginTop: responsiveHeight(2) }}>
+            {/* first row */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginHorizontal: responsiveWidth(1.5), padding: responsiveWidth(2) }}>
+              <Text style={{ color: 'white', fontSize: responsiveWidth(5), fontWeight: 'bold' }}>Games</Text>
+              {/* <Text style={{ color: 'white', fontSize: responsiveWidth(3), color: 'gray' }}>Show all</Text> */}
+            </View>
+
+
+            {/* Filterout singleplayer and multipleplayer games section */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', margin: responsiveWidth(2) }}>
+
+              {
+                playerCategory.map((item, index) => {
+                  return (
+                    <TouchableOpacity onPress={() => { setSelectedplayerCategory(item.index) }} style={{ backgroundColor: selectedplayerCategory == item.index ? 'orange' : 'gray', alignItems: 'center', justifyContent: 'center', marginRight: responsiveWidth(2), borderRadius: responsiveWidth(3), width: responsiveWidth(25), padding: responsiveWidth(2) }}>
+                      <Text style={{ color: selectedplayerCategory == item.index ? 'black' : 'white' }}>{item.category} </Text>
+                    </TouchableOpacity>
+                  )
+                })
+              }
+
+              {/* <TouchableOpacity style={{ backgroundColor: 'orange', alignItems: 'center', justifyContent: 'center', width: responsiveWidth(25), borderRadius: responsiveWidth(3), padding: responsiveWidth(2) }}>
+                <Text>MultiPlayer</Text>
+              </TouchableOpacity> */}
+            </View>
+
+
+            {/* horizontal scroll */}
+            <View style={{ height: responsiveHeight(18), marginHorizontal: responsiveWidth(-3) }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1, marginBottom: responsiveHeight(2.5), padding: responsiveWidth(1), flexDirection: 'row' }}>
+                {/* <View style={{flexDirection:'row',alignItems:'center',marginVertical:responsiveHeight(3),padding:responsiveWidth(2)}}> */}
+                {
+
+                  gamesData.map((item, index) => {
+                    // console.log(item)
+                    return (
+                      <TouchableOpacity onPress={()=>{handleGamesClick()}}>
+                        <View key={index} style={{ height: responsiveHeight(15), alignItems: 'center', justifyContent: 'center' }}>
+                          <View style={{ marginHorizontal: responsiveWidth(3), justifyContent: 'center', alignItems: 'center', width: responsiveWidth(20), height: responsiveWidth(20), padding: responsiveWidth(3), backgroundColor: '#1F2430', borderRadius: responsiveHeight(10) }}>
+                            <Image
+                              source={item.logo} // Adjust the path as necessary
+                              style={{
+                                borderRadius: responsiveWidth(10),
+                                resizeMode: 'contain',
+                                width: responsiveWidth(12), // Responsive width
+                                height: responsiveWidth(12), // Maintain aspect ratio
+                              }}
+                            />
+                          </View>
+                          <Text style={{ marginTop: responsiveHeight(1), color: 'white' }}>{item.name}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    )
+                  })
+
+                }
+                {/* </View> */}
+              </ScrollView>
+            </View>
+          </View>
+
+
+          {/* popular event */}
+          <View style={{ marginTop: responsiveHeight(2) }}>
+            {/* first row */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginHorizontal: responsiveWidth(1.5), padding: responsiveWidth(2) }}>
+              <Text style={{ color: 'white', fontSize: responsiveWidth(5), fontWeight: 'bold' }}>Popular Event</Text>
+              {/* <Text style={{ color: 'white', fontSize: responsiveWidth(3), color: 'gray' }}>Show all</Text> */}
+            </View>
+            {/* horizontal scroll */}
+            <View style={{ height: responsiveHeight(25), marginHorizontal: responsiveWidth(-3) }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1, padding: responsiveWidth(2), marginLeft: responsiveWidth(2) }}>
+                {
+                  eventsData.map((item, index) => {
+                    return (
+                      <View key={index} style={{ width: responsiveWidth(54), height: responsiveHeight(22), marginRight: responsiveWidth(5), padding: responsiveWidth(2), borderRadius: responsiveWidth(5), backgroundColor: '#1F2430' }}>
+                        <Image
+                          source={item.Image} // Adjust the path as necessary
+                          style={{
+                            alignSelf: 'center',
+                            borderRadius: responsiveWidth(4),
+                            resizeMode: 'contain',
+                            width: responsiveWidth(50), // Responsive width
+                            // height: responsiveWidth(18), // Maintain aspect ratio
+                            // marginRight: responsiveWidth(5)
+                          }}
+                        />
+                        <View style={{ padding: responsiveWidth(2) }}>
+                          <Text style={{ color: 'white', fontWeight: 'semibold' }}>{item.event}</Text>
+                          <Text style={{ color: 'white', fontWeight: 'semibold' }}>Tournament</Text>
+                        </View>
+                      </View>
+                    )
+                  })
+                }
+              </ScrollView>
+            </View>
+          </View>
+
+
+          <View style={{ marginHorizontal: responsiveWidth(1.5), marginTop: responsiveHeight(1), padding: responsiveWidth(2) }}><Text style={{ color: 'white', fontWeight: 'bold', fontSize: responsiveWidth(5) }}>Offline Games</Text></View>
           <View style={{ height: responsiveHeight(18), marginHorizontal: responsiveWidth(-3) }}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1, marginBottom: responsiveHeight(2.5), padding: responsiveWidth(1), flexDirection: 'row' }}>
               {/* <View style={{flexDirection:'row',alignItems:'center',marginVertical:responsiveHeight(3),padding:responsiveWidth(2)}}> */}
@@ -105,43 +217,6 @@ const HomeScreen = ({ navigation }) => {
               }
               {/* </View> */}
             </ScrollView>
-          </View>
-
-          {/* popular event */}
-          <View>
-            {/* first row */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginHorizontal: responsiveWidth(1.5), padding: responsiveWidth(2) }}>
-              <Text style={{ color: 'white', fontSize: responsiveWidth(5), fontWeight: 'bold' }}>Popular Event</Text>
-              <Text style={{ color: 'white', fontSize: responsiveWidth(3), color: 'gray' }}>Show all</Text>
-            </View>
-            {/* horizontal scroll */}
-            <View style={{ height: responsiveHeight(25), marginHorizontal: responsiveWidth(-3) }}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1, padding: responsiveWidth(2), marginLeft: responsiveWidth(2) }}>
-                {
-                  eventsData.map((item, index) => {
-                    return (
-                      <View key={index} style={{ width: responsiveWidth(54), height: responsiveHeight(22), marginRight: responsiveWidth(3), padding: responsiveWidth(1.5), borderRadius: responsiveWidth(5), backgroundColor: '#1F2430' }}>
-                        <Image
-                          source={item.Image} // Adjust the path as necessary
-                          style={{
-                            alignSelf: 'center',
-                            borderRadius: responsiveWidth(6),
-                            resizeMode: 'contain',
-                            width: responsiveWidth(56), // Responsive width
-                            // height: responsiveWidth(18), // Maintain aspect ratio
-                            // marginRight: responsiveWidth(5)
-                          }}
-                        />
-                        <View style={{ padding: responsiveWidth(2) }}>
-                          <Text style={{ color: 'white', fontWeight: 'semibold' }}>{item.event}</Text>
-                          <Text style={{ color: 'white', fontWeight: 'semibold' }}>Tournament</Text>
-                        </View>
-                      </View>
-                    )
-                  })
-                }
-              </ScrollView>
-            </View>
           </View>
 
         </View>

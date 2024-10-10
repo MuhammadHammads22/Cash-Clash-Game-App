@@ -27,12 +27,12 @@ const RegisterScreen = () => {
 
   const handleRegister = () => {
     // Placeholder registration logic
-    if (fullName && email && password) {
-      Alert.alert('Registration Successful', 'Your account has been created.');
-      navigation.navigate('Login');
-    } else {
-      Alert.alert('Registration Failed', 'Please fill in all fields.');
-    }
+    // if (fullName && email && password) {
+    //   Alert.alert('Registration Successful', 'Your account has been created.');
+      navigation.navigate('OTP');
+    // } else {
+    //   Alert.alert('Registration Failed', 'Please fill in all fields.');
+    // }
   };
 
   // Dynamic styles based on screen dimensions
@@ -141,7 +141,7 @@ const RegisterScreen = () => {
             title="Register"
             onPress={handleRegister}
             style={{
-              ...tw`bg-yellow-300 items-center py-4 rounded-lg mb-6`,
+              ...tw`bg-yellow-300 items-center rounded-lg mb-6`,
               height: buttonHeight,
               borderRadius: borderRadius,
             }}

@@ -1,6 +1,6 @@
 // navigation/AppNavigator.js
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { SafeAreaView, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,23 +13,24 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import HomeGraph from '../screens/HomeGraph';
 import SettingsScreen from '../screens/SettingsScreen';
 import UpdateProfileScreen from '../screens/UpdateProfileScreen';
+import OTPScreen from '../screens/OTPScreen';
+import PlayOnline from '../screens/PlayOnline';
+import PlayLocal from '../screens/PlayLocal';
+import BottomSheet from '../screens/BottomSheet';
 
 const Stack = createNativeStackNavigator();
 
-// Custom Back Button Component
-const CustomBackButton = ({ navigation }) => {
-  return (
-    <TouchableOpacity
-      onPress={() => navigation.goBack()}
-      style={{ marginLeft: 10 }}
-    >
-      <Ionicons name="arrow-back-circle" size={30} color="#fff" />
-    </TouchableOpacity>
-  );
-};
+export type RootStackParamList={
+  Home:undefined,
+  Login:undefined,
+  SignUp:undefined,
+  LocalGame:undefined,
+  OnlineGame: {id:string},
+} 
 
 const AppNavigator = () => {
   return (
+    <SafeAreaView style={{ flex: 1 }}>
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Welcome"
@@ -52,6 +53,11 @@ const AppNavigator = () => {
           name="Login"
           component={LoginScreen}
           options={{ title: 'Login' }}
+        />
+        <Stack.Screen
+          name="OTP"
+          component={OTPScreen}
+          // options={{ title: 'Login' }}
         />
         <Stack.Screen
           name="Register"
@@ -78,6 +84,24 @@ const AppNavigator = () => {
             // title: route.params.game,
           })}
         />
+         <Stack.Screen
+            name='LocalGame'
+            component={PlayLocal}
+            options={{ 
+                title:'Local Game',
+                headerShown:false
+             }}
+        />    
+
+
+        <Stack.Screen
+            name='OnlineGame'
+            component={PlayOnline}
+            options={{ 
+                title:'Online Game',
+                headerShown:false
+             }}
+        />    
        
         <Stack.Screen
           name="UpdateProfile"
@@ -99,8 +123,18 @@ const AppNavigator = () => {
             // headerLeft: null, // Disable back button
           }}
         />
+         <Stack.Screen
+          name="BottomSheet"
+          component={BottomSheet}
+          options={{
+            headerShown: true,
+            presentation:'modal'
+            // headerLeft: null, // Disable back button
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
+    </SafeAreaView>
   );
 };
 

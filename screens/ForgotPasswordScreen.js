@@ -17,6 +17,7 @@ import Button from '../components/Button';
 import tw from 'twrnc';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { responsiveWidth } from 'react-native-responsive-dimensions';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
@@ -101,19 +102,11 @@ const ForgotPasswordScreen = () => {
           </View>
 
           {/* Reset Password Button */}
-          <Button
-            title="Send Reset Link"
-            onPress={handleResetPassword}
-            style={{
-              ...tw`bg-yellow-300 items-center py-4 rounded-lg mb-6`,
-              height: buttonHeight,
-              borderRadius: borderRadius,
-            }}
-            textStyle={{
-              ...tw`text-black font-bold text-lg`,
-              fontSize: width * 0.05, // Responsive font size
-            }}
-          />
+          <TouchableOpacity style={{justifyContent:'center',alignItems:'center',borderRadius:responsiveWidth(4),backgroundColor:"#F4D144",padding:responsiveWidth(4)}}>
+            <Text style={{fontSize:responsiveWidth(4),fontWeight:'bold'}}>
+              Send Reset Link
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Back to Login Link at the Bottom */}

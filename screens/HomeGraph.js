@@ -47,7 +47,7 @@ const HomeGraph = ({ navigation }) => {
           tabBarLabel: ''
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Games"
         component={GamesScreen}
         options={{
@@ -56,7 +56,7 @@ const HomeGraph = ({ navigation }) => {
           ),
           tabBarLabel: ''
         }}
-      />
+      /> */}
       <Tab.Screen
         name="LeaderBoard"
         component={LeaderboardScreen}
@@ -86,6 +86,9 @@ const HomeGraph = ({ navigation }) => {
       />
       <Tab.Screen
         name="Search"
+        screenOptions={{
+          tabBarHideOnKeyboard: true, // Ensures the tab bar remains visible even when the keyboard is open
+        }}
         component={SearchScreen}
         options={{
           // gestureEnabled:true,
