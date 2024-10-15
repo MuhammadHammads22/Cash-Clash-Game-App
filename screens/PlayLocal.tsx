@@ -1,4 +1,4 @@
-import { Animated, BackHandler, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, Animated, BackHandler, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 
 
@@ -26,6 +26,31 @@ export interface ChessBoardPiece{
 
 
 const PlayLocal = ({navigation}:LocalGameProps) => {
+
+
+  useEffect(() => {
+    // Function to handle the back press
+    const backAction = () => {
+      Alert.alert("Hold on!", "Are you sure you want to go back?", [
+        {
+          text: "Cancel",
+          onPress: () => null,
+          style: "cancel"
+        },
+        { text: "YES", onPress: () => navigation.goBack() }
+      ]);
+      return true; // This ensures the back button is blocked
+    };
+
+    // Add event listener for the back press
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    // Clean up the event listener when the component unmounts
+    return () => backHandler.remove();
+  }, []);
 
   const chessboard:ChessBoardPiece[][] = [
     [

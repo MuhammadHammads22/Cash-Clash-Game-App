@@ -14,7 +14,7 @@ import eventBackgammon from '../assets/images/eventBackGammon.png'
 
 const HomeScreen = ({ navigation }) => {
   const eventsData = [{ event: 'Chess', Image: eventChess }, { event: 'BackGammon', Image: eventBackgammon }]
-  const playerCategory = [{ index: 1, category: 'All' }, { index: 2, category: 'Double Player' }, { index: 3, category: 'Multi Player' }]
+  const playerCategory = [{ index: 1, category: 'All' }, { index: 2, category: 'Two Player' }, { index: 3, category: 'Multi Player' }]
   const [selectedplayerCategory, setSelectedplayerCategory] = useState(1)
   // const doublePlayerGames=[{ name: 'Chess', Image: chess }, { name: 'BackGammon', Image: backgammon }]
   // const multiPlayerGames=[{ name: 'Ludo', Image: ludo }, { name: 'Dominoes', Image: dominoes }]
@@ -24,12 +24,12 @@ const HomeScreen = ({ navigation }) => {
   const handleSettingClick = () => {
     navigation.navigate('Settings')
   }
-  const handleGamesClick = () => {
-    navigation.navigate('BottomSheet')
+  const handleGamesClick = (name) => {
+    // console.log(name)
+    navigation.navigate('GameTierSelection',{game:name})
   }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050B18' }}>
-      <StatusBar barStyle="light-content" backgroundColor="black" />
       <ScrollView>
         <View style={{ flex: 1, backgroundColor: '#050B18', paddingVertical: responsiveHeight(1), paddingHorizontal: responsiveWidth(3) }}>
           {/* HEADER */}
@@ -103,7 +103,7 @@ const HomeScreen = ({ navigation }) => {
               {
                 playerCategory.map((item, index) => {
                   return (
-                    <TouchableOpacity onPress={() => { setSelectedplayerCategory(item.index) }} style={{ backgroundColor: selectedplayerCategory == item.index ? 'orange' : 'gray', alignItems: 'center', justifyContent: 'center', marginRight: responsiveWidth(2), borderRadius: responsiveWidth(3), width: responsiveWidth(25), padding: responsiveWidth(2) }}>
+                    <TouchableOpacity key={index} onPress={() => { setSelectedplayerCategory(item.index) }} style={{ backgroundColor: selectedplayerCategory == item.index ? 'orange' : 'gray', alignItems: 'center', justifyContent: 'center', marginRight: responsiveWidth(2), borderRadius: responsiveWidth(3), width: responsiveWidth(25), padding: responsiveWidth(2) }}>
                       <Text style={{ color: selectedplayerCategory == item.index ? 'black' : 'white' }}>{item.category} </Text>
                     </TouchableOpacity>
                   )
@@ -125,7 +125,7 @@ const HomeScreen = ({ navigation }) => {
                   gamesData.map((item, index) => {
                     // console.log(item)
                     return (
-                      <TouchableOpacity onPress={()=>{handleGamesClick()}}>
+                      <TouchableOpacity key={index} onPress={() => { handleGamesClick(item.name) }}>
                         <View key={index} style={{ height: responsiveHeight(15), alignItems: 'center', justifyContent: 'center' }}>
                           <View style={{ marginHorizontal: responsiveWidth(3), justifyContent: 'center', alignItems: 'center', width: responsiveWidth(20), height: responsiveWidth(20), padding: responsiveWidth(3), backgroundColor: '#1F2430', borderRadius: responsiveHeight(10) }}>
                             <Image
@@ -187,38 +187,6 @@ const HomeScreen = ({ navigation }) => {
               </ScrollView>
             </View>
           </View>
-
-
-          <View style={{ marginHorizontal: responsiveWidth(1.5), marginTop: responsiveHeight(1), padding: responsiveWidth(2) }}><Text style={{ color: 'white', fontWeight: 'bold', fontSize: responsiveWidth(5) }}>Offline Games</Text></View>
-          <View style={{ height: responsiveHeight(18), marginHorizontal: responsiveWidth(-3) }}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1, marginBottom: responsiveHeight(2.5), padding: responsiveWidth(1), flexDirection: 'row' }}>
-              {/* <View style={{flexDirection:'row',alignItems:'center',marginVertical:responsiveHeight(3),padding:responsiveWidth(2)}}> */}
-              {
-                gamesData.map((item, index) => {
-                  // console.log(item)
-                  return (
-                    <View key={index} style={{ height: responsiveHeight(15), alignItems: 'center', justifyContent: 'center' }}>
-                      <View style={{ marginHorizontal: responsiveWidth(3), justifyContent: 'center', alignItems: 'center', width: responsiveWidth(20), height: responsiveWidth(20), padding: responsiveWidth(3), backgroundColor: '#1F2430', borderRadius: responsiveHeight(10) }}>
-                        <Image
-                          source={item.logo} // Adjust the path as necessary
-                          style={{
-                            borderRadius: responsiveWidth(10),
-                            resizeMode: 'contain',
-                            width: responsiveWidth(12), // Responsive width
-                            height: responsiveWidth(12), // Maintain aspect ratio
-                          }}
-                        />
-                      </View>
-                      <Text style={{ marginTop: responsiveHeight(1), color: 'white' }}>{item.name}</Text>
-                    </View>
-                  )
-                })
-
-              }
-              {/* </View> */}
-            </ScrollView>
-          </View>
-
         </View>
       </ScrollView>
     </SafeAreaView>
