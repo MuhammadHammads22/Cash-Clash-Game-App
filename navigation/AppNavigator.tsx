@@ -3,20 +3,25 @@ import React from 'react';
 import { SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
-import GamePlayScreen from '../screens/GamePlayScreen';
 import CurrencyScreen from '../screens/CurrencyScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import HomeGraph from '../screens/HomeGraph';
 import SettingsScreen from '../screens/SettingsScreen';
 import UpdateProfileScreen from '../screens/UpdateProfileScreen';
 import OTPScreen from '../screens/OTPScreen';
-import PlayOnline from '../screens/PlayOnline';
-import PlayLocal from '../screens/PlayLocal';
 import GameTierSelectionScreen from '../screens/GameTierSelectionScreen';
+import TournamentLobbyScreen from '../screens/TournamentLobbyScreen';
+import OnlineLudo from '../screens/OnlineLudo';
+import OnlineBackgammon from '../screens/OnlineBackgammon';
+import OnlineDominoes from '../screens/OnlineDominoes';
+import OfflineBackgammon from '../screens/OfflineBackgammon';
+import OfflineDominoes from '../screens/OfflineDominoes';
+import OfflineLudo from '../screens/OfflineLudo';
+import PlayLocal from '../screens/OfflineChess';
+import PlayOnline from '../screens/OnlineChess';
 import MatchMakingScreen from '../screens/MatchMakingScreen';
 
 const Stack = createNativeStackNavigator();
@@ -35,7 +40,7 @@ const AppNavigator = () => {
       <StatusBar hidden={true} />
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Welcome"
+          initialRouteName="ChessOffline"
           screenOptions={({ navigation }) => ({
             headerShown: false
             // headerStyle: { backgroundColor: '#1E1E1E' },
@@ -49,6 +54,11 @@ const AppNavigator = () => {
           <Stack.Screen
             name="Welcome"
             component={WelcomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="TournamentLobby"
+            component={TournamentLobbyScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
@@ -80,17 +90,14 @@ const AppNavigator = () => {
             }}
           />
           <Stack.Screen
-            name="GamePlay"
-            component={GamePlayScreen}
-            options={({ route }) => ({
-              // title: route.params.game,
-            })}
+            name="MatchMakingScreen"
+            component={MatchMakingScreen}
           />
+         
           <Stack.Screen
             name='ChessOffline'
             component={PlayLocal}
             options={{
-              title: 'Local Game',
               headerShown: false
             }}
           />
@@ -100,7 +107,6 @@ const AppNavigator = () => {
             name='ChessOnline'
             component={PlayOnline}
             options={{
-              title: 'Online Game',
               headerShown: false
             }}
           />
@@ -109,15 +115,55 @@ const AppNavigator = () => {
             name="UpdateProfile"
             component={UpdateProfileScreen}
             options={{
-              title: 'Update Profile',
-              headerShown: true
+              headerShown: false
+            }}
+          />
+
+          <Stack.Screen
+            name="LudoOnline"
+            component={OnlineLudo}
+            options={{
+              headerShown: false
+            }}
+          />
+
+
+          <Stack.Screen
+            name="BackgammonOnline"
+            component={OnlineBackgammon}
+            options={{
+              headerShown: false
+            }}
+          />
+
+          <Stack.Screen
+            name="DominoesOnline"
+            component={OnlineDominoes}
+            options={{
+              headerShown: false
             }}
           />
           <Stack.Screen
-            name="MatchMakingScreen"
-            component={MatchMakingScreen}
+            name="LudoOffline"
+            component={OfflineLudo}
             options={{
-              title: 'Update Profile',
+              headerShown: false
+            }}
+          />
+
+
+          <Stack.Screen
+            name="BackgammonOffline"
+            component={OfflineBackgammon}
+            options={{
+              headerShown: false
+            }}
+          />
+
+          <Stack.Screen
+            name="DominoesOffline"
+            component={OfflineDominoes}
+            options={{
               headerShown: false
             }}
           />

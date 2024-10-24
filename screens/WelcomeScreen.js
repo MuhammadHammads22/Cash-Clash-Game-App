@@ -10,7 +10,7 @@ import {
 import Button from '../components/Button';
 import tw from 'twrnc';
 import { useNavigation } from '@react-navigation/native';
-import { responsiveWidth } from 'react-native-responsive-dimensions';
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 
 const slides = [
   {
@@ -32,6 +32,7 @@ const slides = [
     image: require('../assets/images/ludo.webp'),
   },
 ];
+
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
@@ -59,7 +60,7 @@ const WelcomeScreen = () => {
     const scale = currentSlide === index ? 1 : 0.9;
     
     return (
-      <View style={{ width: ITEM_WIDTH, alignItems: 'center', marginHorizontal:responsiveWidth(2)}}>
+      <View style={{ width: ITEM_WIDTH,height:responsiveHeight(80), alignItems: 'center', marginHorizontal:responsiveWidth(2)}}>
         <View
           style={{
             transform: [{ scale }],
@@ -83,11 +84,7 @@ const WelcomeScreen = () => {
           />
         </View>
         <Text
-          style={{
-            ...tw`text-white font-bold mt-8 text-center px-4`,
-            fontSize: width * 0.05, // Responsive font size
-            marginTop: height * 0.02,
-          }}
+          style={{fontSize:responsiveWidth(6),color:'white',fontWeight:"bold",margin:responsiveWidth(2)}}
         >
           {item.text}
         </Text>
@@ -106,12 +103,12 @@ const WelcomeScreen = () => {
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 }).current;
 
   return (
-    <View style={[tw`flex-1 bg-gray-900`, { backgroundColor: '#050B18' }]}>
+    <View style={[tw`flex-1 `, { backgroundColor: '#050B18' }]}>
       {/* Logo */}
-      <View style={{ alignItems: 'center', marginTop: height * 0.05 }}>
+      <View style={{ alignItems: 'center', }}>
         <Image
-          source={require('../assets/images/1xwin-1.png')}
-          style={{ width: Math.max(width * 0.2, 100), height: Math.max(width * 0.4, 100) }}
+          source={require('../assets/images/finallogo.png')}
+          style={{ width: Math.max(width * 0.5, 100), height: Math.max(width * 0.4, 100) }}
           resizeMode="contain"
         />
       </View>
@@ -155,7 +152,7 @@ const WelcomeScreen = () => {
       </View>
 
       {/* Next Button */}
-      <View style={{ paddingHorizontal: 20, marginBottom: height * 0.03 }}>
+      <View style={{ paddingHorizontal: 20 }}>
         <Button
           title={currentSlide === slides.length - 1 ? 'Start Experience' : 'Next'}
           onPress={handleNext}

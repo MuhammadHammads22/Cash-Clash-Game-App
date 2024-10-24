@@ -15,6 +15,7 @@ import ActionButton from '../components/ActionButton'
 
 // Responsive
 import { Dimensions} from 'react-native'
+import { responsiveWidth } from 'react-native-responsive-dimensions'
 const Width=Dimensions.get('window').width
 
 type LocalGameProps =  NativeStackScreenProps<RootStackParamList,'LocalGame'>
@@ -114,24 +115,24 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
       {piece:'',pieceColor:'',row:5,column:7,isMoveValid:false},
     ],
     [
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:0,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:1,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:2,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:3,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:4,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:5,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:6,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:7,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:0,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:1,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:2,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:3,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:4,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:5,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:6,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:7,isMoveValid:false},
     ],
     [
-      {piece:'chess-rook',pieceColor:'#cacaca',row:7,column:0,isMoveValid:false},
-      {piece:'chess-knight',pieceColor:'#cacaca',row:7,column:1,isMoveValid:false},
-      {piece:'chess-bishop',pieceColor:'#cacaca',row:7,column:2,isMoveValid:false},
-      {piece:'chess-king',pieceColor:'#cacaca',row:7,column:3,isMoveValid:false},
-      {piece:'chess-queen',pieceColor:'#cacaca',row:7,column:4,isMoveValid:false},
-      {piece:'chess-bishop',pieceColor:'#cacaca',row:7,column:5,isMoveValid:false},
-      {piece:'chess-knight',pieceColor:'#cacaca',row:7,column:6,isMoveValid:false},
-      {piece:'chess-rook',pieceColor:'#cacaca',row:7,column:7,isMoveValid:false},
+      {piece:'chess-rook',pieceColor:'white',row:7,column:0,isMoveValid:false},
+      {piece:'chess-knight',pieceColor:'white',row:7,column:1,isMoveValid:false},
+      {piece:'chess-bishop',pieceColor:'white',row:7,column:2,isMoveValid:false},
+      {piece:'chess-king',pieceColor:'white',row:7,column:3,isMoveValid:false},
+      {piece:'chess-queen',pieceColor:'white',row:7,column:4,isMoveValid:false},
+      {piece:'chess-bishop',pieceColor:'white',row:7,column:5,isMoveValid:false},
+      {piece:'chess-knight',pieceColor:'white',row:7,column:6,isMoveValid:false},
+      {piece:'chess-rook',pieceColor:'white',row:7,column:7,isMoveValid:false},
     ],
  
   ]
@@ -592,7 +593,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
                     
                     key={`${item.column}+${item.row}+${index}`}
                     >
-                    <BoardTile color={item.pieceColor} piece={item.piece} bgColor={(item.row+item.column)%2==0 ? '#fffdf0' :'#2e2a2adb'} isValid={item.isMoveValid} />
+                    <BoardTile color={item.pieceColor} piece={item.piece} bgColor={(item.row+item.column)%2==0 ? '#B58763' :'#F1D8B7'} isValid={item.isMoveValid} />
                     </Pressable>
                   )}
                 />
@@ -675,7 +676,7 @@ const styles = StyleSheet.create({
     justifyContent:'center',
   },
   boardContainer:{
-    width:380,
+    width:responsiveWidth(77.8),
     marginVertical:0,
     borderWidth:8,
     height:450,

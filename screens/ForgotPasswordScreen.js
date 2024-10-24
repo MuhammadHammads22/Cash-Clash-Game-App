@@ -59,7 +59,7 @@ const ForgotPasswordScreen = () => {
           {/* App Logo */}
           <View style={tw`items-center mb-6 mt-6`}>
             <Image
-              source={require('../assets/images/1xwin-1.png')}
+              source={require('../assets/images/finallogo.png')}
               style={{ width: logoSize, height: logoSize }}
               resizeMode="contain"
             />

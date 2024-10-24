@@ -36,7 +36,7 @@ const RegisterScreen = () => {
   };
 
   // Dynamic styles based on screen dimensions
-  const logoSize = width * 0.15; // 15% of screen width
+  const logoSize = width * 0.4; // 15% of screen width
   const inputHeight = height * 0.07; // 7% of screen height
   const fontSize = width * 0.045; // Adjust font size based on width
   const iconSize = width * 0.06; // 6% of screen width
@@ -57,7 +57,7 @@ const RegisterScreen = () => {
           {/* App Logo */}
           <View style={tw`items-center mb-6 mt-6`}>
             <Image
-              source={require('../assets/images/1xwin-1.png')}
+              source={require('../assets/images/finallogo.png')}
               style={{ width: logoSize, height: logoSize }}
               resizeMode="contain"
             />

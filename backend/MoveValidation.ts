@@ -1,4 +1,5 @@
-import { ChessBoardPiece } from "../screens/PlayLocal";
+import { ChessBoardPiece } from "../screens/OfflineChess"
+
 
 export const checkPawnMove = (gameState:ChessBoardPiece[][],{piece,pieceColor,row,column}:ChessBoardPiece)=>{
     let newGameState=[...gameState]

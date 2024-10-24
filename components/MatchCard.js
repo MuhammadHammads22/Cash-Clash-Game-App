@@ -9,16 +9,16 @@ import CoinsCard from './CoinsCard';
 const MatchCard = ({ item, index, activeIndex, game ,returnAmountSelected}) => {
     // Calculate scale and left position based on current slide
     const scale = activeIndex === item.index ? 1 : 0.85;
-    const bettingAmountList = [100, 200, 400, 1000, 2500, 10000]
-    const [selectedAmount,setSelectedAmount]=useState(-1)
+    const bettingAmountList = [0,100, 200, 400, 1000, 2500, 10000]
+    const [selectedAmount,setSelectedAmount]=useState(0)
     
     useEffect(() => {
         if (activeIndex !== item.index) {
-          setSelectedAmount(-1);
+          setSelectedAmount(0);
         }
       }, [activeIndex]);
       useEffect(()=>{
-        if(selectedAmount) returnAmountSelected(bettingAmountList[selectedAmount])
+      returnAmountSelected(bettingAmountList[selectedAmount])
       },[selectedAmount])
 
     return (
@@ -37,7 +37,7 @@ const MatchCard = ({ item, index, activeIndex, game ,returnAmountSelected}) => {
                 {
                     item.item.play != "OffLine" ?
                         bettingAmountList.map((item, index) => {
-                            return (
+                            return (index!==0&&
                                 <TouchableOpacity key={index} onPress={()=>{setSelectedAmount(index)}}>
                                     <CoinsCard item={item} index={index} selectedIndex={selectedAmount} />
                                 </TouchableOpacity>

@@ -13,11 +13,12 @@ type BoardTileProps=PropsWithChildren<{
 }>
 
 import  Icon  from 'react-native-vector-icons/FontAwesome5'
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 
 const PieceIcon = ({color,piece}:BoardTileProps) =>{
   
   return(
-    <Icon name={piece} size={20} color={color}  />    
+    <Icon name={piece} size={35} color={color}  />    
   )
 }
 
@@ -38,8 +39,8 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     padding:10,
-    width:46,
-    height:55,
+    width:responsiveWidth(9.3),
+    height:responsiveHeight(6.1),
     // flexDirection:'row',
     // flexWrap:'wrap', 
   }
