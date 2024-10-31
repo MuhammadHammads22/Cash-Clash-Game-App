@@ -1,5 +1,5 @@
 // navigation/AppNavigator.js
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -35,12 +35,17 @@ export type RootStackParamList = {
 }
 
 const AppNavigator = () => {
+  // const [isDarkTheme,setIsDarkTheme]=useState(false)
+  // const appContext= useMemo(()=>{
+  //   return {isDarkTheme,setIsDarkTheme}
+  // },[])
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar hidden={true} />
       <NavigationContainer>
+        {/* <AppContext.Provider value={appContext}> */}
         <Stack.Navigator
-          initialRouteName="ChessOffline"
+          initialRouteName="Welcome"
           screenOptions={({ navigation }) => ({
             headerShown: false
             // headerStyle: { backgroundColor: '#1E1E1E' },
@@ -190,6 +195,7 @@ const AppNavigator = () => {
             }}
           />
         </Stack.Navigator>
+        {/* </AppContext.Provider> */}
       </NavigationContainer>
     </SafeAreaView>
   );

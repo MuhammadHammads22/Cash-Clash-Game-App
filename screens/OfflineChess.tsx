@@ -1,4 +1,4 @@
-import { Alert, Animated, BackHandler, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Animated, BackHandler, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 
 
@@ -9,13 +9,13 @@ import  Icon  from 'react-native-vector-icons/FontAwesome5'
 import { checkBishopMove, checkCastling, checkKingMove, checkKnightMove, checkPawnMove, checkPotentialBlockMoves, checkQueenMove, checkRookMove, isInCheck } from '../backend/MoveValidation'
 import { FA5Style } from 'react-native-vector-icons/FontAwesome5'
 import PlayerCard from '../components/PlayerCard'
-import {LinearGradient} from "expo-linear-gradient"
+import { LinearGradient } from 'expo-linear-gradient';
 import ActionButton from '../components/ActionButton'
 
 
 // Responsive
 import { Dimensions} from 'react-native'
-import { responsiveWidth } from 'react-native-responsive-dimensions'
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 const Width=Dimensions.get('window').width
 
 type LocalGameProps =  NativeStackScreenProps<RootStackParamList,'LocalGame'>
@@ -27,31 +27,6 @@ export interface ChessBoardPiece{
 
 
 const PlayLocal = ({navigation}:LocalGameProps) => {
-
-
-  useEffect(() => {
-    // Function to handle the back press
-    const backAction = () => {
-      Alert.alert("Hold on!", "Are you sure you want to go back?", [
-        {
-          text: "Cancel",
-          onPress: () => null,
-          style: "cancel"
-        },
-        { text: "YES", onPress: () => navigation.goBack() }
-      ]);
-      return true; // This ensures the back button is blocked
-    };
-
-    // Add event listener for the back press
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
-    );
-
-    // Clean up the event listener when the component unmounts
-    return () => backHandler.remove();
-  }, []);
 
   const chessboard:ChessBoardPiece[][] = [
     [
@@ -164,7 +139,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
 
   // Checks if the king is in check or not
   const checkKingState = async ()=>{
-    setIsCheck(await isInCheck(gameState,player==='white'? '#cacaca' : 'black'))
+    setIsCheck(await isInCheck(gameState,player==='white'? 'white' : 'black'))
     // console.log(isCheck)
   }
   
@@ -172,7 +147,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
   const castleDirectionCheck=async()=>{
     let direction:string[]=[]
 
-    direction = await checkCastling(gameState,player==='white'?'#cacaca':'black')
+    direction = await checkCastling(gameState,player==='white'?'white':'black')
 
     if(isCastlingAllowed[0] && player==='white'){
 
@@ -263,7 +238,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
 
     
     if(selectedPiece.piece==='chess-rook' || selectedPiece.piece === 'chess-king'){
-      if(selectedPiece.pieceColor==='#cacaca'){
+      if(selectedPiece.pieceColor==='white'){
         if(column==0){
           isCastlingAllowed[0].left=false
         }else if(column===7){
@@ -305,7 +280,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
     if(isCheck){
       console.log("King Is In Check")
 
-      const availableMoves=await checkPotentialBlockMoves(gameState,player==='white'? '#cacaca' : 'black')
+      const availableMoves=await checkPotentialBlockMoves(gameState,player==='white'? 'white' : 'black')
       const res=availableMoves.find(moves=>moves.row===currentSquareState.row && moves.column===currentSquareState.column)
       if(availableMoves.length===0){
         setIsWinner(player==='white'? 'black won the Game' : 'white won the game')
@@ -335,7 +310,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
         isMoveValid:false
       }
 
-      if(pieceColor==='#cacaca'){
+      if(pieceColor==='white'){
         let temp = lostWhitePiece
         temp.push(lostPiece)
         setLostWhitePiece(temp)
@@ -374,7 +349,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
     };
      
     checkKingState()
-    
+
     newGameState.map((innerArray)=>{
       innerArray.map((obj)=>{
         newGameState[obj.row][obj.column].isMoveValid=false
@@ -387,7 +362,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
 
     setGameState(newGameState)
     checkIsWinner()
-    setPlayer(selectedPiece.pieceColor==='#cacaca'? 'black' : 'white')
+    setPlayer(selectedPiece.pieceColor==='white'? 'black' : 'white')
  
   }
 
@@ -441,11 +416,12 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
 
   return (
     <LinearGradient
-    colors={['#050B18', '#0A0F25']} // Define your gradient colors
+    colors={['#004d4d', '#009999']}
     start={{ x: 0, y: 0 }} // Starting point (optional)
     end={{ x: 1, y: 1 }}   // Ending point (optional)
     style={[styles.container, { width: "100%" }]} // Apply the gradient to the entire container
   >
+
       <ScrollView showsVerticalScrollIndicator={false} >
       {screenWidth.toFixed() > '650' ? (
         <View style={{ flexDirection:'row-reverse' }}>
@@ -465,7 +441,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
                   renderItem={({item,index})=>(
 
                     <Pressable onPress={()=>{
-                      if(player==item.pieceColor || (item.pieceColor=='#cacaca' && player==='white')){
+                      if(player==item.pieceColor || (item.pieceColor=='white' && player==='white')){
 
                       onPieceSelected({
                         piece:item.piece,
@@ -491,7 +467,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
                     
                     key={`${item.column}+${item.row}+${index}`}
                     >
-                    <BoardTile color={item.pieceColor} piece={item.piece} bgColor={(item.row+item.column)%2==0 ? '#fffdf0' :'#2e2a2adb'} isValid={item.isMoveValid} />
+                      <BoardTile color={item.pieceColor} piece={item.piece} bgColor={(item.row+item.column)%2==0 ? '#B58763' :'#F1D8B7'} isValid={item.isMoveValid} />
                     </Pressable>
                   )}
                 />
@@ -567,7 +543,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
                   renderItem={({item,index})=>(
 
                     <Pressable onPress={()=>{
-                      if(player==item.pieceColor || (item.pieceColor=='#cacaca' && player==='white')){
+                      if(player==item.pieceColor || (item.pieceColor=='white' && player==='white')){
 
                       onPieceSelected({
                         piece:item.piece,
@@ -593,7 +569,7 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
                     
                     key={`${item.column}+${item.row}+${index}`}
                     >
-                    <BoardTile color={item.pieceColor} piece={item.piece} bgColor={(item.row+item.column)%2==0 ? '#B58763' :'#F1D8B7'} isValid={item.isMoveValid} />
+                    <BoardTile color={item.pieceColor} piece={item.piece} bgColor={(item.row+item.column)%2==0 ?  '#B58763' :'#F1D8B7'} isValid={item.isMoveValid} />
                     </Pressable>
                   )}
                 />
@@ -634,28 +610,28 @@ const PlayLocal = ({navigation}:LocalGameProps) => {
               <Icon name={'chess-queen'} size={25} color={player!=='white'?'#fff' : 'black'} 
               onPress={()=>promotePawn({
                 piece:'chess-queen',
-                pieceColor:player!=='white'?'#cacaca' : 'black',
+                pieceColor:player!=='white'?'white' : 'black',
                 row:promotionPiece.row,
                 column:promotionPiece.column
               })}  />    
               <Icon name={'chess-bishop'} size={25} color={player!=='white'?'#fff' : 'black'} 
               onPress={()=>promotePawn({
                 piece:'chess-bishop',
-                pieceColor:player!=='white'?'#cacaca' : 'black',
+                pieceColor:player!=='white'?'white' : 'black',
                 row:promotionPiece.row,
                 column:promotionPiece.column
               })} />    
               <Icon name={'chess-knight'} size={25} color={player!=='white'?'#fff' : 'black'} 
               onPress={()=>promotePawn({
                 piece:'chess-knight',
-                pieceColor:player!=='white'?'#cacaca' : 'black',
+                pieceColor:player!=='white'?'white' : 'black',
                 row:promotionPiece.row,
                 column:promotionPiece.column
               })} />    
               <Icon name={'chess-rook'} size={25} color={player!=='white'?'#fff' : 'black'} 
               onPress={()=>promotePawn({
                 piece:'chess-rook',
-                pieceColor:player!=='white'?'#cacaca' : 'black',
+                pieceColor:player!=='white'?'white' : 'black',
                 row:promotionPiece.row,
                 column:promotionPiece.column
               })}  />    
@@ -676,10 +652,10 @@ const styles = StyleSheet.create({
     justifyContent:'center',
   },
   boardContainer:{
-    width:responsiveWidth(77.8),
-    marginVertical:0,
+    width:responsiveWidth(84),
+    marginVertical:10,
     borderWidth:8,
-    height:450,
+    height:responsiveHeight(48),
     borderRadius:8,
     borderColor:'#bdbdbd61',
     alignSelf:'center',

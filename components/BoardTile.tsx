@@ -18,7 +18,7 @@ import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimen
 const PieceIcon = ({color,piece}:BoardTileProps) =>{
   
   return(
-    <Icon name={piece} size={35} color={color}  />    
+    <Icon name={piece} size={responsiveWidth(6)} color={color}  />    
   )
 }
 
@@ -38,9 +38,9 @@ const styles = StyleSheet.create({
   container:{
     justifyContent:'center',
     alignItems:'center',
-    padding:10,
-    width:responsiveWidth(9.3),
-    height:responsiveHeight(6.1),
+    padding:0,
+    width:responsiveWidth(10),
+    height:responsiveHeight(5.77),
     // flexDirection:'row',
     // flexWrap:'wrap', 
   }

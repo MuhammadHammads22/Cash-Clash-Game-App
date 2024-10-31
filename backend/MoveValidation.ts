@@ -4,12 +4,12 @@ import { ChessBoardPiece } from "../screens/OfflineChess"
 export const checkPawnMove = (gameState:ChessBoardPiece[][],{piece,pieceColor,row,column}:ChessBoardPiece)=>{
     let newGameState=[...gameState]
 
-    if(pieceColor==='#cacaca'){
+    if(pieceColor==='white'){
         if(row===6){
 
             const isEnemyPiece=
             newGameState[row-1][column].pieceColor==='black' ||
-            newGameState[row-1][column].pieceColor==='#cacaca'
+            newGameState[row-1][column].pieceColor==='white'
 
             newGameState[row-1][column].isMoveValid=
                 (newGameState[row-1][column].piece === '' ||
@@ -54,43 +54,43 @@ export const checkPawnMove = (gameState:ChessBoardPiece[][],{piece,pieceColor,ro
 
         if(row===1){
             const isEnemyPiece=
-            newGameState[row+1][column].pieceColor==='#cacaca' ||
+            newGameState[row+1][column].pieceColor==='white' ||
             newGameState[row+1][column].pieceColor==='black'
 
             newGameState[row+1][column].isMoveValid=
                 (newGameState[row+1][column].piece === '' ||
-                newGameState[row+1][column].pieceColor==='#cacaca' )
+                newGameState[row+1][column].pieceColor==='white' )
             
             if(!isEnemyPiece){
                 newGameState[row+2][column].isMoveValid=
                     (newGameState[row+2][column].piece === '' &&
-                    newGameState[row+2][column].pieceColor!=='#cacaca' )
+                    newGameState[row+2][column].pieceColor!=='white' )
             }
         }else{
             newGameState[row+1][column].isMoveValid=
             (newGameState[row+1][column].piece === '' &&
-             newGameState[row+1][column].pieceColor!=='#cacaca' )
+             newGameState[row+1][column].pieceColor!=='white' )
         }
 
         if(column===0){
             newGameState[row+1][column+1].isMoveValid=
                 (newGameState[row+1][column+1].piece !== '' &&
-                newGameState[row+1][column+1].pieceColor==='#cacaca' )
+                newGameState[row+1][column+1].pieceColor==='white' )
 
         }else if(column===7){
             newGameState[row+1][column-1].isMoveValid=
             (newGameState[row+1][column-1].piece !== '' &&
-            newGameState[row+1][column-1].pieceColor==='#cacaca' )
+            newGameState[row+1][column-1].pieceColor==='white' )
 
         }else{
             if(row!==1){
                 newGameState[row+1][column+1].isMoveValid=
                     (newGameState[row+1][column+1].piece !== '' &&
-                    newGameState[row+1][column+1].pieceColor==='#cacaca' ) 
+                    newGameState[row+1][column+1].pieceColor==='white' ) 
 
                 newGameState[row+1][column-1].isMoveValid=
                     (newGameState[row+1][column-1].piece !== '' &&
-                    newGameState[row+1][column-1].pieceColor==='#cacaca' ) 
+                    newGameState[row+1][column-1].pieceColor==='white' ) 
             }
         }
 
@@ -162,143 +162,35 @@ export const checkRookMove = (gameState:ChessBoardPiece[][],{piece,pieceColor,ro
     return newGameState
 }
 
-export const checkKnightMove = (gameState:ChessBoardPiece[][],{piece,pieceColor,row,column}:ChessBoardPiece)=>{
-    let newGameState=[...gameState]
-    // newGameState.map((innerArray)=>{
-    //     innerArray.map((obj)=>{
-    //         obj.isMoveValid=false
-    //     })
-    // })
+export const checkKnightMove = (
+    gameState: ChessBoardPiece[][],
+    { piece, pieceColor, row, column }: ChessBoardPiece
+) => {
+    let newGameState = [...gameState];
 
-    if(row===0){
+    const isWithinBounds = (r: number, c: number) => r >= 0 && r < 8 && c >= 0 && c < 8;
 
-        newGameState[row+2][column+1].isMoveValid = newGameState[row+2][column+1].piece==='' ||
-            newGameState[row+2][column+1].pieceColor!==pieceColor
-
-        newGameState[row+2][column-1].isMoveValid = newGameState[row+2][column-1].piece==='' ||
-            newGameState[row+2][column-1].pieceColor !== pieceColor
-        
-
-            if(column===0 || column=== 1){
-                newGameState[row+1][column+2].isMoveValid = newGameState[row+1][column+2].piece==='' ||
-                    newGameState[row+1][column+2].pieceColor!==pieceColor
-        
-            }else if(column===7 || column===6){
-                newGameState[row+1][column-2].isMoveValid = newGameState[row+1][column-2].piece==='' ||
-                    newGameState[row+1][column-2].pieceColor!==pieceColor    
-        
-            }else{
-
-                newGameState[row+1][column-2].isMoveValid = newGameState[row+2][column+1].piece==='' ||
-                    newGameState[row+1][column-2].pieceColor!==pieceColor    
-        
-                newGameState[row+1][column+2].isMoveValid = newGameState[row+2][column+1].piece==='' ||
-                    newGameState[row+1][column+2].pieceColor!==pieceColor
+    const markMoveValid = (r: number, c: number) => {
+        if (isWithinBounds(r, c)) {
+            const targetSquare = newGameState[r][c];
+            if (targetSquare) {
+                targetSquare.isMoveValid = targetSquare.piece === '' || targetSquare.pieceColor !== pieceColor;
             }
-
-    }else if(row===7){
-
-        newGameState[row-2][column+1].isMoveValid = newGameState[row-2][column+1].piece==='' ||
-            newGameState[row-2][column+1].pieceColor!==pieceColor
-
-        newGameState[row-2][column-1].isMoveValid = newGameState[row-2][column-1].piece==='' ||
-            newGameState[row-2][column-1].pieceColor !== pieceColor
-        
-        if(column=== 0 || column=== 1){
-            newGameState[row-1][column+2].isMoveValid = newGameState[row-1][column+2].piece==='' ||
-                    newGameState[row-1][column+2].pieceColor!==pieceColor
-    
-        }else if(column=== 7 || column=== 6){
-            newGameState[row-1][column-2].isMoveValid = newGameState[row-1][column-2].piece==='' ||
-                newGameState[row-1][column-2].pieceColor!==pieceColor    
-    
-        }else{
-    
-            newGameState[row-1][column-2].isMoveValid = newGameState[row-2][column-1].piece==='' ||
-                newGameState[row-1][column-2].pieceColor!==pieceColor    
-    
-            newGameState[row-1][column+2].isMoveValid = newGameState[row-2][column+1].piece==='' ||
-                newGameState[row-1][column+2].pieceColor!==pieceColor
         }
+    };
 
-    }else{
+    // Knight's possible moves
+    const moves = [
+        [2, 1], [2, -1], [-2, 1], [-2, -1],
+        [1, 2], [1, -2], [-1, 2], [-1, -2]
+    ];
 
-
-
-
-            
-        
-        if(column=== 0 || column=== 1){
-            newGameState[row-1][column+2].isMoveValid = newGameState[row-1][column+2].piece==='' ||
-                    newGameState[row-1][column+2].pieceColor!==pieceColor
-
-            newGameState[row+1][column+2].isMoveValid = newGameState[row+1][column+2].piece==='' ||
-                newGameState[row+1][column+2].pieceColor!==pieceColor
-            
-            
-        newGameState[row-2][column+1].isMoveValid = newGameState[row-2][column+1].piece==='' ||
-        newGameState[row-2][column+1].pieceColor!==pieceColor    
-
-
-        newGameState[row+2][column+1].isMoveValid = newGameState[row+2][column+1].piece==='' ||
-        newGameState[row+2][column+1].pieceColor!==pieceColor
-
-    
-        }else if(column=== 7 || column=== 6){
-            newGameState[row-1][column-2].isMoveValid = newGameState[row-1][column-2].piece==='' ||
-                newGameState[row-1][column-2].pieceColor!==pieceColor    
-    
-            newGameState[row+1][column-2].isMoveValid = newGameState[row+1][column-2].piece==='' ||
-                newGameState[row+1][column-2].pieceColor!==pieceColor    
-
-                newGameState[row+2][column-1].isMoveValid = newGameState[row+2][column-1].piece==='' ||
-                newGameState[row+2][column-1].pieceColor !== pieceColor
-             
-                
-        newGameState[row-2][column-1].isMoveValid = newGameState[row-2][column-1].piece==='' ||
-        newGameState[row-2][column-1].pieceColor !== pieceColor
-        
-        
-        }else{
-    
-            newGameState[row-1][column-2].isMoveValid = newGameState[row-2][column-1].piece==='' ||
-                newGameState[row-1][column-2].pieceColor!==pieceColor    
-    
-            newGameState[row-1][column+2].isMoveValid = newGameState[row-2][column+1].piece==='' ||
-                newGameState[row-1][column+2].pieceColor!==pieceColor
-
-            
-            newGameState[row+1][column-2].isMoveValid = newGameState[row+2][column+1].piece==='' ||
-                newGameState[row+1][column-2].pieceColor!==pieceColor    
-        
-            newGameState[row+1][column+2].isMoveValid = newGameState[row+2][column+1].piece==='' ||
-                newGameState[row+1][column+2].pieceColor!==pieceColor    
-
-                //
-
-                newGameState[row-2][column+1].isMoveValid = newGameState[row-2][column+1].piece==='' ||
-                newGameState[row-2][column+1].pieceColor!==pieceColor    
-        
-        
-                newGameState[row+2][column+1].isMoveValid = newGameState[row+2][column+1].piece==='' ||
-                newGameState[row+2][column+1].pieceColor!==pieceColor
-
-                newGameState[row+2][column-1].isMoveValid = newGameState[row+2][column-1].piece==='' ||
-                newGameState[row+2][column-1].pieceColor !== pieceColor
-             
-                
-                newGameState[row-2][column-1].isMoveValid = newGameState[row-2][column-1].piece==='' ||
-                newGameState[row-2][column-1].pieceColor !== pieceColor
-        
-        
-        }
+    for (const [dr, dc] of moves) {
+        markMoveValid(row + dr, column + dc);
     }
 
-    
-
-
-    return newGameState
-}
+    return newGameState;
+};
 
 
 export const checkBishopMove = (gameState:ChessBoardPiece[][],{piece,pieceColor,row,column}:ChessBoardPiece)=>{
@@ -833,24 +725,24 @@ export const chessboard:ChessBoardPiece[][] = [
       {piece:'',pieceColor:'',row:5,column:7,isMoveValid:false},
     ],
     [
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:0,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:1,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:2,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:3,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:4,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:5,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:6,isMoveValid:false},
-      {piece:'chess-pawn',pieceColor:'#cacaca',row:6,column:7,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:0,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:1,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:2,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:3,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:4,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:5,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:6,isMoveValid:false},
+      {piece:'chess-pawn',pieceColor:'white',row:6,column:7,isMoveValid:false},
     ],
     [
-      {piece:'chess-rook',pieceColor:'#cacaca',row:7,column:0,isMoveValid:false},
-      {piece:'chess-knight',pieceColor:'#cacaca',row:7,column:1,isMoveValid:false},
-      {piece:'chess-bishop',pieceColor:'#cacaca',row:7,column:2,isMoveValid:false},
-      {piece:'chess-king',pieceColor:'#cacaca',row:7,column:3,isMoveValid:false},
-      {piece:'chess-queen',pieceColor:'#cacaca',row:7,column:4,isMoveValid:false},
-      {piece:'chess-bishop',pieceColor:'#cacaca',row:7,column:5,isMoveValid:false},
-      {piece:'chess-knight',pieceColor:'#cacaca',row:7,column:6,isMoveValid:false},
-      {piece:'chess-rook',pieceColor:'#cacaca',row:7,column:7,isMoveValid:false},
+      {piece:'chess-rook',pieceColor:'white',row:7,column:0,isMoveValid:false},
+      {piece:'chess-knight',pieceColor:'white',row:7,column:1,isMoveValid:false},
+      {piece:'chess-bishop',pieceColor:'white',row:7,column:2,isMoveValid:false},
+      {piece:'chess-king',pieceColor:'white',row:7,column:3,isMoveValid:false},
+      {piece:'chess-queen',pieceColor:'white',row:7,column:4,isMoveValid:false},
+      {piece:'chess-bishop',pieceColor:'white',row:7,column:5,isMoveValid:false},
+      {piece:'chess-knight',pieceColor:'white',row:7,column:6,isMoveValid:false},
+      {piece:'chess-rook',pieceColor:'white',row:7,column:7,isMoveValid:false},
     ],
     
   ]
