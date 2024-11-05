@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Image, SafeAreaView, KeyboardAvoidingView, Scro
 import React, { useEffect, useRef, useState } from 'react'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import IonIcons from 'react-native-vector-icons/Ionicons'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import ludo from '../assets/images/ludoIcon.png'
 import chess from '../assets/images/chessIcon.png'
 import backgammon from '../assets/images/backgammonIcon.png'
@@ -16,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const HomeScreen = ({ navigation }) => {
   const gamesData = [{ name: 'Chess', logo: chess }, { name: 'Ludo', logo: ludo }, { name: 'Backgammon', logo: backgammon }, { name: 'Dominoes', logo: dominoes }]
-  const gameOptions = [{ game: 'chess', logo: chess , options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Ludo', logo: ludo , options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "4 Players", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Dominoes', logo: dominoes, options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "4 Players", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Backgammon', logo: backgammon, options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }]
+  const gameOptions = [{ game: 'Chess', logo: chess , options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Ludo', logo: ludo , options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "4 Players", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Dominoes', logo: dominoes, options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "4 Players", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Backgammon', logo: backgammon, options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }]
   const [selectedGame, setSelectedGame] = useState(0);
   
   const [showPriceModal, setShowPriceModal] = useState(false)
@@ -25,51 +26,54 @@ const HomeScreen = ({ navigation }) => {
 
 // animation on flatlist
 
-const animatedValue = useRef(new Animated.Value(0)).current;
+const scrollX = useRef(new Animated.Value(0)).current;
+  const previousScrollValue = useRef(0).current; 
 const scrollViewRef = useRef(null);
-const rotateY = animatedValue.interpolate({
-  inputRange: [
-    (selectedGame - 1) * responsiveWidth(100),
-    selectedGame * responsiveWidth(100),
-    (selectedGame+ 1) * responsiveWidth(100),
-  ],
-  outputRange: ['90deg', '0deg', '-90deg'],
-  extrapolate: 'clamp',
-});
-const scale = animatedValue.interpolate({
-  inputRange: [
-    (selectedGame - 1) * responsiveWidth(100),
-    selectedGame * responsiveWidth(100),
-    (selectedGame+ 1) * responsiveWidth(100),
-  ],
-  outputRange: [0.8, 1, 0.8], // Scale down when moving out and scale up when coming in
-  extrapolate: 'clamp',
-});
-const translateX = animatedValue.interpolate({
-  inputRange: [
-    (selectedGame - 1) * responsiveWidth(100),
-    selectedGame * responsiveWidth(100),
-    (selectedGame + 1) * responsiveWidth(100),
-  ],
-  outputRange: [responsiveWidth(100), 0, -responsiveWidth(100)], // Move out to the left or right
-  extrapolate: 'clamp',
-});
+
+
+
 const handleScroll = (event) => {
   // Calculate the horizontal scroll position
-  const scrollX = event.nativeEvent.contentOffset.x;
-
+  const scroll = event.nativeEvent.contentOffset.x;
+  
   // Update animated value
-  animatedValue.setValue(scrollX);
+  scrollX.setValue(scroll);
 };
 
+
   const optionsCard=(game)=>{
+    const isActive=game.index==selectedGame
+    const rotateY = scrollX.interpolate({
+      inputRange: [
+        (selectedGame - 1) * responsiveWidth(100),
+        selectedGame * responsiveWidth(100),
+        (selectedGame+ 1) * responsiveWidth(100),
+      ],
+      outputRange: [
+        isActive ? "45deg" : "0deg", // Rotate left slide when scrolling right
+        isActive ? "0deg" : (game.index < selectedGame ? "45deg" : "45deg"), // Current slide rotation
+        isActive ? "-45deg" : "0deg",  // Rotate right slide when scrolling left
+      ],
+      extrapolate: 'clamp',
+    });
+    const scale = scrollX.interpolate({
+      inputRange: [
+        (selectedGame - 1) * responsiveWidth(100),
+        selectedGame * responsiveWidth(100),
+        (selectedGame+ 1) * responsiveWidth(100),
+      ],
+      outputRange: [0.8, 1, 0.8], // Scale down when moving out and scale up when coming in
+      extrapolate: 'clamp',
+    });
+    
+    
     return(
-      <Animated.View style={{transform: [{ scale },{ rotateY }] }}>
-      <Text style={{flex:1,textAlign:'center',fontSize:responsiveWidth(6),fontWeight:'bold',marginBottom:responsiveHeight(2),color:'white'}}>{game.game}</Text>
+      <Animated.View style={{transform: [{ scale },{ rotateY:rotateY }] }}>
+      <Text style={{flex:1,textAlign:'center',fontSize:responsiveWidth(6),fontWeight:'bold',marginBottom:responsiveHeight(2),color:'white'}}>{game.item.game}</Text>
       <View style={{width:responsiveWidth(94),alignItems:'center',justifyContent:'center',flexDirection:'row',flexWrap:'wrap',height:responsiveHeight(50)}}>
         
       {
-        game.options.map((item, index) => {
+        game.item.options.map((item, index) => {
               return (
                 
                 <TouchableOpacity key={index} onPress={() => { setShowPriceModal(!showPriceModal); setSelectedGame(index) }}>
@@ -218,6 +222,10 @@ const handleScroll = (event) => {
             />
           </View>
 
+          <View>
+            <AntDesign name='star' size={responsiveWidth(20)} color='white'/>
+          </View>
+
 
           <View style={{ justifyContent:'flex-end',alignItems:'center' }}>
 
@@ -232,13 +240,13 @@ const handleScroll = (event) => {
             showsHorizontalScrollIndicator={false}
             data={gameOptions}
             style={{}}
-            renderItem={(item)=>{return(
-              optionsCard(item.item)
+            renderItem={(item,index)=>{return(
+              optionsCard(item)
             )}}
             onViewableItemsChanged={onViewableItemsChanged}
             />
           
-       
+  
            
             <View style={{  padding: responsiveWidth(2), flexDirection: 'row', borderWidth: responsiveWidth(1), borderColor: 'gray', alignSelf: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: responsiveWidth(6) }}>
               {
