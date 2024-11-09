@@ -5,28 +5,15 @@ import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimen
 import MatchCard from '../components/MatchCard'
 import { FontAwesome } from '@expo/vector-icons';
 import ludoBackgroundimage from '../assets/images/background.png'
+import { LinearGradient } from 'expo-linear-gradient'
 // import { io } from 'socket.io-client';
 
 
 const GameTierSelectionScreen = ({navigation}) => {
-  const tierList = [{ play: 'Single Match' }, { play: 'Tournament' }, { play: 'OffLine' }]
-  const [currentSlide, setCurrentSlide] = useState(0);
   const game = useRoute().params.game
   const [selectedAmount,setSelectedAmount]=useState()
-  const keyExtractor = (item, index) => index.toString();
-
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-      setCurrentSlide(viewableItems[0].index);
-    }
-  }).current;
-
-  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 70 }).current;
-
-  const  returnAmountSelected=(amount)=>{
-    setSelectedAmount(amount)
-  }
-
+  const bettingAmountList = [0,100, 200, 400, 1000, 2500, 10000]
+  
   const disabled=selectedAmount==0 && currentSlide!==2
 
   const nowPlayGame=()=>{
@@ -71,37 +58,42 @@ const GameTierSelectionScreen = ({navigation}) => {
       }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#050B18'}}>
-      <ImageBackground source={ludoBackgroundimage} // Replace with your image URL
-        style={{flex:1,paddingTop:responsiveHeight(12),}}
-        resizeMode="cover" >
-      <TouchableOpacity style={{position:'absolute',top:responsiveHeight(3),left:responsiveWidth(7)}} onPress={()=>{navigation.goBack()}}>
+    <LinearGradient
+     style={{ flex:1, alignItems: 'center', justifyContent: 'flex-start' }}
+    colors={ ['#35234b',
+        '#2975bf',
+        '#3d54b1']} // Define your gradient colors
+    locations={[0, .5, 1]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }} >
+          
+      <View style={{width:responsiveWidth(100),padding:responsiveWidth(4)}}> 
+      <TouchableOpacity onPress={()=>{navigation.goBack()}}>
       <FontAwesome  name='chevron-left' size={responsiveWidth(8)} color="white"/>
-      </TouchableOpacity>
-      <FlatList
-        data={tierList}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        pagingEnabled={true}
-        renderItem={(item,index)=>{return(<MatchCard item={item} index={index} activeIndex={currentSlide} game={game} returnAmountSelected={returnAmountSelected} />)}}
-        keyExtractor={keyExtractor}
-        snapToInterval={responsiveWidth(80)}
-        decelerationRate="fast"
-        contentContainerStyle={{
-          paddingHorizontal: responsiveWidth(10),
-          height:responsiveHeight(60),
-        }}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewConfigRef}
-      />
+      </TouchableOpacity>   
+      </View>
+      {/* <View style={{}}>
+        <Text></Text>
+        <View>
+          <TouchableOpacity>
 
+          </TouchableOpacity>
+          <View>
+
+            <Text></Text>
+          </View>
+          <TouchableOpacity>
+
+          </TouchableOpacity>
+        </View>
+      </View> */}
+    
       <TouchableOpacity disabled={disabled} onPress={nowPlayGame} style={{ margin:responsiveWidth(6),justifyContent: 'center', alignItems: 'center', borderRadius: responsiveWidth(5), backgroundColor: disabled?"gray":"#F4D144", padding: responsiveWidth(4) }}>
         <Text style={{fontSize:responsiveWidth(6),fontWeight:'bold'}}>
           Play
         </Text>
       </TouchableOpacity>
-      </ImageBackground>
-    </View>
+  </LinearGradient>
   )
 }
 

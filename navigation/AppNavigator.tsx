@@ -23,6 +23,8 @@ import OfflineLudo from '../screens/OfflineLudo';
 import PlayLocal from '../screens/OfflineChess';
 import PlayOnline from '../screens/OnlineChess';
 import MatchMakingScreen from '../screens/MatchMakingScreen';
+import PrivateRoom from '../screens/PrivateRoom';
+import FourPlayerMatchMakingScreen from '../screens/FourPlayerMatchMakingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,7 +47,7 @@ const AppNavigator = () => {
       <NavigationContainer>
         {/* <AppContext.Provider value={appContext}> */}
         <Stack.Navigator
-          initialRouteName="LudoOffline"
+          initialRouteName="Welcome"
           screenOptions={({ navigation }) => ({
             headerShown: false
             // headerStyle: { backgroundColor: '#1E1E1E' },
@@ -189,6 +191,22 @@ const AppNavigator = () => {
           <Stack.Screen
             name="GameTierSelection"
             component={GameTierSelectionScreen}
+            options={{
+              headerShown: false,
+              // headerLeft: null, // Disable back button
+            }}
+          />
+           <Stack.Screen
+            name="PrivateRoom"
+            component={PrivateRoom}
+            options={{
+              headerShown: false,
+              // headerLeft: null, // Disable back button
+            }}
+          />
+          <Stack.Screen
+            name="FourPlayerMatchMaking"
+            component={FourPlayerMatchMakingScreen}
             options={{
               headerShown: false,
               // headerLeft: null, // Disable back button

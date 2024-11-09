@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, Image, SafeAreaView, KeyboardAvoidingView, ScrollView, TouchableOpacity, StatusBar, Modal, FlatList, Animated } from 'react-native'
+import { View, Text, StyleSheet, Image, SafeAreaView, KeyboardAvoidingView, ScrollView, TouchableOpacity, StatusBar, Modal, FlatList, Animated, ImageBackground } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
-import IonIcons from 'react-native-vector-icons/Ionicons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
+import { Ionicons,FontAwesome} from '@expo/vector-icons';
 import ludo from '../assets/images/ludoIcon.png'
 import chess from '../assets/images/chessIcon.png'
 import backgammon from '../assets/images/backgammonIcon.png'
@@ -12,17 +12,27 @@ import eventBackgammon from '../assets/images/eventBackGammon.png'
 import coinIcon from '../assets/images/coinIcon.png'
 import SimpleIcon from 'react-native-vector-icons/SimpleLineIcons'
 import { LinearGradient } from 'expo-linear-gradient';
-
+import LottieView from 'lottie-react-native';
 
 
 const HomeScreen = ({ navigation }) => {
   const gamesData = [{ name: 'Chess', logo: chess }, { name: 'Ludo', logo: ludo }, { name: 'Backgammon', logo: backgammon }, { name: 'Dominoes', logo: dominoes }]
-  const gameOptions = [{ game: 'Chess', logo: chess , options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Ludo', logo: ludo , options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "4 Players", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Dominoes', logo: dominoes, options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "4 Players", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }, { game: 'Backgammon', logo: backgammon, options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 4, name: "Private Room", image: require('../assets/images/tournament.png') }] }]
+  const gameOptions = [{ game: 'Chess', logo: chess , options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/Chess-Tournament-Card.png') }, { id: 3, name: "Private Room", image: require('../assets/images/Chess-Private-Card.png') }] }, { game: 'Ludo', logo: ludo , options: [{ id: 1, name: "2 Players", image: require('../assets/images/Ludo-TwoPlayer-Card.png') }, { id: 2, name: "tournament", image: require('../assets/images/Ludo-Tournament-Card.png') }, { id: 3, name: "Private Room", image: require('../assets/images/Ludo-PrivateRoom-Card.png') }, { id: 4, name: "4 Players", image: require('../assets/images/Ludo-FourPlayer-Card.png') }] }, { game: 'Dominoes', logo: dominoes, options: [{ id: 1, name: "2 Players", image: require('../assets/images/Dominoes-TwoPlayer-Card.png') }, { id: 2, name: "tournament", image: require('../assets/images/Dominoes-Tournament-Card.png') }, { id: 3, name: "Private Room", image: require('../assets/images/Dominoes-PrivateRoom-Card.png') }, { id: 4, name: "4 Players", image: require('../assets/images/Dominoes-FourPlayer-Card.png') }] }, { game: 'Backgammon', logo: backgammon, options: [{ id: 1, name: "2 Players", image: require('../assets/images/Backgammon-TwoPlayer-Card.png') }, { id: 2, name: "tournament", image: require('../assets/images/Backgammon-Private-Card.png') }, { id: 3, name: "Private Room", image: require('../assets/images/Backgammon-Tournament-Card.png') }] }]
   const [selectedGame, setSelectedGame] = useState(0);
-  
+  const [selectedGameOption, setSelectedGameOption] = useState(0);
   const [showPriceModal, setShowPriceModal] = useState(false)
   const gameTiers = [100, 200, 500, 1000, 2500, 5000]
   const [gameTier, setGameTier] = useState(100)
+  const eventData=[
+    { id: '1', title: 'Event 1', description: "50% off", image: 'https://via.placeholder.com/150' },
+    { id: '2', title: 'Event 2', description: "legends League", image: 'https://via.placeholder.com/150' },
+    { id: '3', title: 'Event 3', description: 'Amazing offer on Event 3', image: 'https://via.placeholder.com/150' },
+    { id: '4', title: 'Event 4', description: 'Buy 1 get 1 offer', image: 'https://via.placeholder.com/150' },
+    { id: '5', title: 'Event 5', description: 'Exclusive Deal', image: 'https://via.placeholder.com/150' },
+  ];
+  
+
+   
 
 // animation on flatlist
 
@@ -40,6 +50,90 @@ const handleScroll = (event) => {
   scrollX.setValue(scroll);
 };
 
+const handleSettingClick = () => {
+  navigation.navigate('Settings')
+}
+
+const handleGamesClick = (index) => {
+  // console.log(name)
+  setSelectedGame(index)
+  scrollViewRef.current.scrollToIndex({index,animated:true})
+  // navigation.navigate('GameTierSelection',{game:name})
+}
+
+const onViewableItemsChanged = useRef(({ viewableItems }) => {
+  if (viewableItems.length > 0) {
+    setSelectedGame(viewableItems[0].index);
+  }
+}).current;
+
+const nowPlayGame=()=>{
+  console.log(gameTier+",  "+selectedGame+", "+selectedGameOption)
+  if (selectedGame === 0) {
+    if (selectedGameOption === 1) {
+      setShowPriceModal(false)
+      navigation.navigate('MatchMakingScreen', {game:selectedGame,type:selectedGameOption,amount:gameTier});
+    } else if (selectedGameOption === 2) {
+      setShowPriceModal(false)
+      navigation.navigate('TournamentLobby', {game:selectedGame,type:selectedGameOption,amount:gameTier});
+    } else if (selectedGameOption === 3) {
+      setShowPriceModal(false)
+      navigation.navigate('PrivateRoom',{game:selectedGame,type:selectedGameOption,amount:gameTier});
+    }
+    else if (selectedGameOption === 4) {
+      setShowPriceModal(false)
+      navigation.navigate('LudoOffline',{game:selectedGame,type:selectedGameOption,amount:gameTier});
+    }
+  }
+  if (selectedGame === 1) {
+    if (selectedGameOption === 1) {
+      setShowPriceModal(false)
+      navigation.navigate('MatchMakingScreen', {game:selectedGame,type:selectedGameOption,amount:gameTier});
+    } else if (selectedGameOption === 2) {
+      setShowPriceModal(false)
+      navigation.navigate('TournamentLobby', {game:selectedGame,type:selectedGameOption,amount:gameTier});
+    } else if (selectedGameOption === 3) {
+      setShowPriceModal(false)
+      navigation.navigate('PrivateRoom',{game:selectedGame,type:selectedGameOption,amount:gameTier});
+    }
+    else if (selectedGameOption === 4) {
+      setShowPriceModal(false)
+      navigation.navigate('FourPlayerMatchMaking',{game:selectedGame,type:selectedGameOption,amount:gameTier});
+    }
+  }
+  if (selectedGame === 2) {
+    if (selectedGameOption === 1) {
+      setShowPriceModal(false)
+      navigation.navigate('MatchMakingScreen', {game:selectedGame,type:selectedGameOption,amount:gameTier});
+    } else if (selectedGameOption === 2) {
+      setShowPriceModal(false)
+      navigation.navigate('TournamentLobby', {game:selectedGame,type:selectedGameOption,amount:gameTier});
+    } else if (selectedGameOption === 3) {
+      setShowPriceModal(false)
+      navigation.navigate('BackgammonOffline',{game:selectedGame,type:selectedGameOption,amount:gameTier});
+    }
+    else if (selectedGameOption === 4) {
+      setShowPriceModal(false)
+      navigation.navigate('FourPlayerMatchMaking',{game:selectedGame,type:selectedGameOption,amount:gameTier});
+    }
+  }
+  if (selectedGame === 3) {
+    if (selectedGameOption === 1) {
+      setShowPriceModal(false)
+      navigation.navigate('MatchMakingScreen', {game:selectedGame,type:selectedGameOption,amount:gameTier});
+    } else if (selectedGameOption === 2) {
+      setShowPriceModal(false)
+      navigation.navigate('TournamentLobby', {game:selectedGame,type:selectedGameOption,amount:gameTier});
+    } else if (selectedGameOption === 3) {
+      setShowPriceModal(false)
+      navigation.navigate('DominoesOffline',{game:selectedGame,type:selectedGameOption,amount:gameTier});
+    }
+    else if (selectedGameOption === 4) {
+      setShowPriceModal(false)
+      navigation.navigate('FourPlayerMatchMaking',{game:selectedGame,type:selectedGameOption,amount:gameTier});
+    }
+  }
+}
 
   const optionsCard=(game)=>{
     const isActive=game.index==selectedGame
@@ -70,25 +164,36 @@ const handleScroll = (event) => {
     return(
       <Animated.View style={{transform: [{ scale },{ rotateY:rotateY }] }}>
       <Text style={{flex:1,textAlign:'center',fontSize:responsiveWidth(6),fontWeight:'bold',marginBottom:responsiveHeight(2),color:'white'}}>{game.item.game}</Text>
-      <View style={{width:responsiveWidth(94),alignItems:'center',justifyContent:'center',flexDirection:'row',flexWrap:'wrap',height:responsiveHeight(50)}}>
+      <View style={{width:responsiveWidth(94),alignItems:'center',justifyContent:'center',flexDirection:'row',flexWrap:'wrap',height:responsiveHeight(46)}}>
         
       {
         game.item.options.map((item, index) => {
               return (
                 
-                <TouchableOpacity key={index} onPress={() => { setShowPriceModal(!showPriceModal); setSelectedGame(index) }}>
+                <TouchableOpacity key={index} onPress={() => {
+                  setShowPriceModal(true)
+                  setSelectedGameOption(item.id)
+                  }}>
+                  <View style={{ alignItems:"center",justifyContent:'flex-start', marginBottom: responsiveHeight(2),marginHorizontal: responsiveWidth(2), width: responsiveWidth(42), height: responsiveHeight(21), backgroundColor: index==0?'#333333':index==1?"#B9B64D":index==2?"#ff7f50 ":'#006bb3', borderRadius: responsiveWidth(6)}}>
                   <LinearGradient
-                    key={index} style={{ marginBottom: responsiveHeight(2), alignItems: 'center', justifyContent: 'flex-end', marginHorizontal: responsiveWidth(2), width: responsiveWidth(42), height: responsiveHeight(22), backgroundColor: 'orange', borderRadius: responsiveWidth(6) }}
-                    colors={index == 1 ? ['#4caf50', '#ffeb3b', '#1e88e5'] : ['#c72c41', '#ff7f50', '#c72c41']} // Define your gradient colors
+                    key={index} style={{  alignItems: 'center', justifyContent: 'flex-end', width: responsiveWidth(42), height: responsiveHeight(20), borderRadius: responsiveWidth(6) }}
+                    colors={index == 0 ?['#e0e0e0', '#9e9e9e', '#424242'] :index==1? ['#A3D05C', '#ffeb3b', '#A3D05C']:index==2? ['#c72c41', '#ff7f50', '#ff7f50']:['#00c6ff', '#0072ff','#00c6ff']} // Define your gradient colors
                     locations={[0, .5, 1]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }} >
-                    <Image source={item.image} style={{ width: 150, height: 100 }} />
+                      {/* Starry background animation */}
+      <LottieView
+        source={require('../animation/starsAnimation.json')} // Add your Lottie stars animation here
+        autoPlay
+        loop
+        style={styles.stars}
+      />
+                    <Image  source={item.image} style={{transform:[{translateY:selectedGame==1&&(item.id==2||item.id==3)?responsiveHeight(2):0}],resizeMode:'contain', width:responsiveWidth(36), height:selectedGame==1&&(item.id==2||item.id==3)? responsiveHeight(17): responsiveHeight(12) }} />
                     <Text style={{ fontSize: responsiveWidth(4), fontWeight: 'bold', marginVertical: responsiveHeight(1) }}>
                       {item.name}
                     </Text>
-                    <View style={{position:'absolute',height:responsiveHeight(1),borderBottomEndRadius:responsiveWidth(6),borderBottomLeftRadius:responsiveWidth(6),width:responsiveWidth(39.5),bottom:.4,backgroundColor:'#c72c41'}}></View>
-                  </LinearGradient>
+                  </LinearGradient> 
+                  </View>
                 </TouchableOpacity>
               )
             })
@@ -97,71 +202,28 @@ const handleScroll = (event) => {
       </Animated.View>
     )
   }
+  const renderItem = ({ item }) => (
+    <TouchableOpacity style={styles.card} onPress={() => alert(`Card clicked: ${item.title}`)}>
+      <View style={styles.cardText}>
+        <Text style={styles.cardTitle}>{item.title}</Text>
+        <Text style={styles.cardDescription}>{item.description}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
-  const handleSettingClick = () => {
-    navigation.navigate('Settings')
-  }
-  const handleGamesClick = (index) => {
-    // console.log(name)
-    setSelectedGame(index)
-    scrollViewRef.current.scrollToIndex({index,animated:true})
-    // navigation.navigate('GameTierSelection',{game:name})
-  }
+ 
 
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-      setSelectedGame(viewableItems[0].index);
-    }
-  }).current;
+ 
+  return (      
+    <ImageBackground style={{flex:1}} source={require('../assets/images/App-3d-Background.jpg')}>
 
-  // const handlePlayGame = () => {
-  //   setSelectedGameOption(null)
-  //   setShowPriceModal(false)
-  //   if (selectedGame === 0) {
-  //     if (selectedGameOption === 0) {
-  //       navigation.navigate('MatchMakingScreen', { game: gamesData[selectedGame].name, type: selectedGameOption, amount: gameTier });
-  //     } else if (selectedGameOption === 1) {
-  //       navigation.navigate('TournamentLobby', { game: gamesData[selectedGame].name, type: selectedGameOption, amount: gameTier });
-  //     } else if (selectedGameOption === 2) {
-  //       navigation.navigate('ChessOffline');
-  //     }
-  //   }
-  //   if (selectedGame === 1) {
-  //     if (selectedGameOption === 0) {
-  //       navigation.navigate('MatchMakingScreen', { game: gamesData[selectedGame].name, type: selectedGameOption, amount: gameTier });
-  //     } else if (selectedGameOption === 1) {
-  //       navigation.navigate('TournamentLobby', { game: gamesData[selectedGame].name, type: selectedGameOption, amount: gameTier });
-  //     } else if (selectedGameOption === 2) {
-  //       navigation.navigate('LudoOffline');
-  //     }
-  //   }
-  //   if (selectedGame === 2) {
-  //     if (selectedGameOption === 0) {
-  //       navigation.navigate('MatchMakingScreen', { game: gamesData[selectedGame].name, type: selectedGameOption, amount: gameTier });
-  //     } else if (selectedGameOption === 1) {
-  //       navigation.navigate('TournamentLobby', { game: gamesData[selectedGame].name, type: selectedGameOption, amount: gameTier });
-  //     } else if (selectedGameOption === 2) {
-  //       navigation.navigate('BackgammonOffline');
-  //     }
-  //   }
-  //   if (selectedGame === 3) {
-  //     if (selectedGameOption === 0) {
-  //       navigation.navigate('MatchMakingScreen', { game: gamesData[selectedGame].name, type: selectedGameOption, amount: gameTier });
-  //     } else if (selectedGameOption === 1) {
-  //       navigation.navigate('TournamentLobby', { game: gamesData[selectedGame].name, type: selectedGameOption, amount: gameTier });
-  //     } else if (selectedGameOption === 2) {
-  //       navigation.navigate('DominoesOffline');
-  //     }
-  //   }
-
-  // }
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#050B18' }}>
-      <Modal onRequestClose={() => { setShowPriceModal(false) }} transparent={true} onDismiss={() => { setShowPriceModal(false); setSelectedGameOption(null) }} visible={showPriceModal} >
-        <View backgroundColor={'rgba(50,50,50,.3)'} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <View style={{ padding: responsiveWidth(4), borderRadius: responsiveWidth(6), alignItems: 'center', justifyContent: 'center', backgroundColor: 'gray', width: responsiveWidth(80), height: responsiveHeight(45) }}>
-
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+       <Modal onRequestClose={() => { setShowPriceModal(false) }} transparent={true} onDismiss={() => { setShowPriceModal(false); setSelectedGameOption(null) }} visible={showPriceModal} >
+         <View backgroundColor={'rgba(50,50,50,.3)'} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+           <View style={{ padding: responsiveWidth(4), borderRadius: responsiveWidth(6), alignItems: 'center', justifyContent: 'center', backgroundColor: 'gray', width: responsiveWidth(80), height: responsiveHeight(45) }}>
+           <TouchableOpacity onPress={()=>{setShowPriceModal(false)}} style={{position:'absolute',top:responsiveWidth(4),right:responsiveWidth(4)}}>
+           <FontAwesome name='close' size={responsiveWidth(8)} color='black'/>
+           </TouchableOpacity>
+             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
               {
                 gameTiers.map((item, index) => {
                   return (
@@ -174,22 +236,21 @@ const handleScroll = (event) => {
                 })
               }
             </View>
-            <TouchableOpacity onPress={null} style={{ alignSelf: 'center', marginVertical: responsiveHeight(2), width: responsiveWidth(70), backgroundColor: 'black', padding: responsiveWidth(2), borderRadius: responsiveWidth(4), alignItems: 'center', justifyContent: 'center' }}>
+            <TouchableOpacity disabled={!gameTier} onPress={nowPlayGame} style={{ alignSelf: 'center', marginVertical: responsiveHeight(2), width: responsiveWidth(70), backgroundColor: 'black', padding: responsiveWidth(2), borderRadius: responsiveWidth(4), alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}> Start</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-      <ScrollView>
-        <View style={{ flex: 1, backgroundColor: '#050B18', paddingHorizontal: responsiveWidth(3) }}>
-          {/* HEADER */}
+         <View style={{ flex: 1, backgroundColor: '#050B18', paddingHorizontal: responsiveWidth(3) }}>
+           {/* HEADER */}
 
-          <View style={{ borderRadius: responsiveWidth(5), justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', padding: responsiveWidth(2), marginVertical: responsiveHeight(1),marginBottom:responsiveHeight(8) }}>
+           <View style={{ borderRadius: responsiveWidth(5), justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', padding: responsiveWidth(2), marginVertical: responsiveHeight(1) }}>
 
             {/* ICON VIEW */}
             <TouchableOpacity onPress={handleSettingClick}>
               <View style={{ padding: responsiveWidth(2), borderRadius: responsiveHeight(10), borderWidth: responsiveWidth(.5), borderColor: 'gray' }}>
-                <IonIcons name='settings' size={responsiveHeight(2.5)} color='gray' />
+                <Ionicons name='settings' size={responsiveHeight(2.5)} color='gray' />
               </View>
             </TouchableOpacity>
 
@@ -222,12 +283,22 @@ const handleScroll = (event) => {
             />
           </View>
 
-          <View>
-            <AntDesign name='star' size={responsiveWidth(20)} color='white'/>
-          </View>
+          {/* <ScrollView style={{backgroundColor:"white",height:responsiveHeight(7),width:responsiveWidth(100)}}>
 
+          </ScrollView> */}
+<View style={{height:responsiveHeight(7),width:responsiveWidth(100)}}>
+  <FlatList
+        data={eventData}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false} // Hide horizontal scroll bar
+        contentContainerStyle={styles.listContentContainer}
+  />
+</View>
+          
 
-          <View style={{ justifyContent:'flex-end',alignItems:'center' }}>
+          <View style={{ justifyContent:'flex-end',alignItems:'center',paddingVertical:responsiveHeight(2) }}>
 
 
             <FlatList  
@@ -272,17 +343,55 @@ const handleScroll = (event) => {
                 })
               }
             </View>
-          </View>
+           </View>
 
 
         </View>
-      </ScrollView>
-    </SafeAreaView>
+</ImageBackground>
+
+
 
   )
 }
 
 const styles = StyleSheet.create({
+  listContentContainer: {
+    paddingHorizontal: 10,
+  },
+  cardImage: {
+    width: '100%',
+    height: '60%', // Image takes up 60% of the card height
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  cardText: {
+    padding: responsiveWidth(2),
+    justifyContent: 'flex-start',
+    backgroundColor:'gray',
+    borderRadius:responsiveWidth(2),
+    borderWidth:1,
+    borderColor:'yellow',
+    alignItems: 'flex-start',
+    marginRight:responsiveWidth(1)
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  stars: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex:2
+  },
+  cardDescription: {
+    fontSize: 12,
+    color: 'white',
+    marginTop: 5,
+  },
   gameScreen: {
     backgroundColor: 'black',
     flex: 1
