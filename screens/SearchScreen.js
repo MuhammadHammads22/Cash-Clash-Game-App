@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, SafeAreaView, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, Image, SafeAreaView, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, FlatList, ActivityIndicator, ImageBackground } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import IonIcons from 'react-native-vector-icons/Ionicons'
@@ -83,8 +83,10 @@ const inputRef=useRef()
     </View>
   );
   return (
-    <View style={{ flex: 1, backgroundColor: '#050B18' }}>
-      <View style={styles.headerContainer}>
+    <SafeAreaView style={{flex:1}}>
+    <ImageBackground  style={{ flex: 1 }} source={require('../assets/images/App-3d-Background.jpg')}>
+    <View style={{ flex: 1 }}>
+      <View style={[styles.headerContainer,{}]}>
         {/* Search Bar on the left */}
         <View style={styles.searchBar}>
           <IonIcons name="search" size={responsiveWidth(5)} color='white' />
@@ -92,7 +94,7 @@ const inputRef=useRef()
           ref={inputRef}
             style={{ flex: 1, marginLeft: responsiveWidth(1), color: 'white', fontSize: responsiveWidth(5) }}
             placeholder="Search..."
-            placeholderTextColor="#888"
+            placeholderTextColor="white"
             value={searchText}
             onChangeText={(text) => { setSearchText(text) }}
           />
@@ -128,6 +130,8 @@ const inputRef=useRef()
         }
       </View>
     </View>
+    </ImageBackground>
+    </SafeAreaView>
 
   )
 }
@@ -149,7 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: responsiveWidth(4),
-    backgroundColor: '#1F2430', // White background for the search input
+    backgroundColor: 'gray', // White background for the search input
     color: '#000',
   },
   headerText: {

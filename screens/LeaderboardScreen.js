@@ -1,6 +1,6 @@
 // screens/LeaderboardScreen.js
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image, ScrollView, SafeAreaView, Platform } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, ScrollView, SafeAreaView, Platform, ImageBackground } from 'react-native';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import firstPosition from '../assets/images/firstPosition.png'
 import secondPosition from '../assets/images/secondPosition.png'
@@ -30,7 +30,7 @@ const LeaderboardScreen = () => {
   return (
     // screen view
     <SafeAreaView style={[styles.leaderboardScreen,{paddingTop:Platform.OS=='android'?responsiveHeight(4):0}]}> 
-
+<ImageBackground  style={{ flex: 1 }} source={require('../assets/images/App-3d-Background.jpg')}>
       {/* heading */}
       <Text style={{ color: 'white', padding: responsiveWidth(2), alignSelf: 'center', fontSize: responsiveWidth(6), fontWeight: 'bold', marginBottom: responsiveHeight(2) }}>LeaderBoard</Text>
 
@@ -128,7 +128,7 @@ const LeaderboardScreen = () => {
 
 
       {/* remaining list */}
-      <View style={{flex:1,backgroundColor:'#1F2430',paddingVertical:responsiveWidth(1),paddingHorizontal:responsiveWidth(4),borderTopLeftRadius:responsiveWidth(8),borderTopRightRadius:responsiveWidth(8)}}>
+      <View style={{flex:1,borderColor:'white',borderWidth:1,paddingVertical:responsiveWidth(1),paddingHorizontal:responsiveWidth(4),borderTopLeftRadius:responsiveWidth(8),borderTopRightRadius:responsiveWidth(8)}}>
       <ScrollView showsVerticalScrollIndicator={false} style={{borderTopLeftRadius:responsiveWidth(8),borderTopRightRadius:responsiveWidth(8)}} >
       <View style={{height:responsiveHeight(2)}}></View>
       {
@@ -142,7 +142,7 @@ const LeaderboardScreen = () => {
       </ScrollView>
       </View>
 
-  
+      </ImageBackground>
     </SafeAreaView>
 
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { TouchableOpacity, Text, useWindowDimensions } from 'react-native';
 import tw from 'twrnc';
 
-const Button = ({ title, onPress, style, textStyle }) => {
+const Button = ({ title, onPress, style, textStyle,disable }) => {
   const { width, height } = useWindowDimensions();
 
   // Dynamic styles based on screen dimensions
@@ -20,6 +20,7 @@ const Button = ({ title, onPress, style, textStyle }) => {
         },
         tw.style(`bg-blue-500 rounded-lg`, style),
       ]}
+      disabled={disable}
       onPress={onPress}
     >
       <Text style={[

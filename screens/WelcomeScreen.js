@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,9 @@ import Button from '../components/Button';
 import tw from 'twrnc';
 import { useNavigation } from '@react-navigation/native';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
+import io from 'socket.io-client';
+
+const socket = io('http://10.0.2.2:3000');
 
 const slides = [
   {
@@ -43,6 +46,15 @@ const WelcomeScreen = () => {
   // Calculate dimensions for partial visibility
   const ITEM_WIDTH = width * 0.75;
   const ITEM_SPACING = (width - ITEM_WIDTH) / 4;
+
+  useEffect(() => {
+    console.log("hello")
+    // Listen for events from the server
+    socket.on('playerJoined', (message) => {
+      console.log(message)
+    })
+  }
+  )
 
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {

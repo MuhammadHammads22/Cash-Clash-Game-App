@@ -1,5 +1,5 @@
 // navigation/AppNavigator.js
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -25,6 +25,8 @@ import PlayOnline from '../screens/OnlineChess';
 import MatchMakingScreen from '../screens/MatchMakingScreen';
 import PrivateRoom from '../screens/PrivateRoom';
 import FourPlayerMatchMakingScreen from '../screens/FourPlayerMatchMakingScreen';
+import NetInfo from '@react-native-community/netinfo';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +39,25 @@ export type RootStackParamList = {
 }
 
 const AppNavigator = () => {
+  const [isConnected, setIsConnected] = useState(null);
+  console.log(isConnected)
+  useEffect(() => {
+    // Check the internet connection status when the app starts
+    const checkConnection = async () => {
+      const state = await NetInfo.fetch();
+      setIsConnected(state);
+    };
+
+    checkConnection(); // Call immediately on app start
+
+    // Listen for changes in the connection status
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected);
+    });
+
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
+  }, []);
   // const [isDarkTheme,setIsDarkTheme]=useState(false)
   // const appContext= useMemo(()=>{
   //   return {isDarkTheme,setIsDarkTheme}
@@ -87,6 +108,11 @@ const AppNavigator = () => {
             name="ForgotPassword"
             component={ForgotPasswordScreen}
             options={{ title: 'Forgot Password' }}
+          />
+          <Stack.Screen
+            name="ResetPassword"
+            component={ResetPasswordScreen}
+            options={{ title: 'Reset Password' }}
           />
           <Stack.Screen
             name="HomeGraph"

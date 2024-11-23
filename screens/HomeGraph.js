@@ -1,6 +1,6 @@
 // screens/HomeScreen.js
 import React from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Platform, ImageBackground } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -26,12 +26,12 @@ const HomeGraph = ({ navigation }) => {
       screenOptions={{
         tabBarStyle: {
           paddingTop:responsiveHeight(1),
-          backgroundColor: '#050B18',
+          position: 'absolute', 
+          backgroundColor: 'transparent',
           height: Platform.OS === 'ios' ? responsiveHeight(13) : responsiveHeight(10),
           elevation: 4,
           bottom: Platform.OS === 'ios' ? responsiveHeight(-2) : 0,
         },
-        
         headerShown:false,
         // tabBarActiveTintColor: 'white', // Active icon color
         // tabBarInactiveTintColor: 'gray', // Inactive icon color

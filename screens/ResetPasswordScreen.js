@@ -24,7 +24,7 @@ import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimen
 import GenderSelection from '../components/GenderSelectionComponent';
 import LoginModal from '../components/Modal';
 
-const RegisterScreen = () => {
+const ResetPasswordScreen = () => {
   const navigation = useNavigation();
   const { width, height } = useWindowDimensions();
   const [name, setName] = useState('');
@@ -300,4 +300,4 @@ const RegisterScreen = () => {
   );
 };
 
-export default RegisterScreen;
+export default ResetPasswordScreen;

@@ -3,12 +3,31 @@ import React, { useState } from 'react'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { OtpInput } from "react-native-otp-entry";
 
-const OTPScreen = ({ navigation }) => {
+const OTPScreen = ({ navigation}) => {
     const [otp, setOtp] = useState()
-    const handleOptSubmit = () => {
-        console.log('email verified')
-        navigation.navigate('Login')
-        setOtp('')
+    const handleOptSubmit =async (text) => {
+        await fetch('http://10.0.2.2:3000/auth/verifyOtp', {
+            method: 'POST', // Correct HTTP method, use uppercase "POST"
+            headers: {
+              'Content-Type': 'application/json', // Tell the server that you're sending JSON
+            },
+            body: JSON.stringify({
+              email: "hammadjb22@gmail.com",
+              otp:text
+            }),
+          })
+            .then((res) => {
+                // if(res) navigation.navigate('Register',email); // Parse the response as JSON
+                return res.json()
+                
+            })
+            .then((data) => {
+              console.log(data); // Handle the data received from the server
+              if(data.success) navigation.navigate('ResetPassword')
+            })
+            .catch((err) => {
+              console.error('Error during registration:', err); // Handle errors
+            });
     }
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#050B18' }}>
@@ -22,10 +41,10 @@ const OTPScreen = ({ navigation }) => {
                     </View>
 
                     {/* otp Input */}
-                    <OtpInput numberOfDigits={4} focusColor="#F4D144"
+                    <OtpInput numberOfDigits={6} focusColor="#F4D144"
                         focusStickBlinkingDuration={500}
-                        onTextChange={(text) => setOtp(text)}
-                        onFilled={(text) => { handleOptSubmit() }}
+                        onTextChange={(text) =>{ setOtp(text)}}
+                        onFilled={(text) => { handleOptSubmit(text) }}
                         textInputProps={{
                             accessibilityLabel: "One-Time Password",
                         }}
