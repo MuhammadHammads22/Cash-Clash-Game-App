@@ -23,7 +23,7 @@ const OTPScreen = ({ navigation}) => {
             })
             .then((data) => {
               console.log(data); // Handle the data received from the server
-              if(data.success) navigation.navigate('ResetPassword')
+              if(data.success) navigation.navigate('Login')
             })
             .catch((err) => {
               console.error('Error during registration:', err); // Handle errors

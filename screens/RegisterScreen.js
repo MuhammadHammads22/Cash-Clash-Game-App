@@ -40,6 +40,11 @@ const RegisterScreen = () => {
   const [isErrorGender,setIsErrorGender]=useState(false)
   const [selectedGender, setSelectedGender] = useState('');
 
+  const [country, setCountry] = useState(null);
+  const [isErrorCountry,setIsErrorCountry]=useState(false)
+  const [errorCountry, setErrorCountry] = useState('');
+
+
   const [password, setPassword] = useState('');
   const [errorPassword,setErrorPassword]=useState('')
   const [isErrorPassword,setIsErrorPassword]=useState(false)
@@ -54,6 +59,15 @@ const RegisterScreen = () => {
   const [errorServer, setErrorServer] = useState("")
 
   const isButtonDisabled = !name.trim() ||isErrorName|| !email.trim()||isErrorEmail || !selectedGender.trim()||isErrorGender || !password.trim()||isErrorPassword || !confirmPassword.trim()||isErrorConfirmPassword;
+
+
+  // Country Picker Callback
+  const onSelectCountry = (country) => {
+    setCountry(country);
+    console.log(country);
+  };
+
+
 
   const handleRegister =async () => {
     // Placeholder registration logic
@@ -74,7 +88,15 @@ const RegisterScreen = () => {
       .then((res) => res.json()) // Parse the response as JSON
       .then((data) => {
         setIsLoading(false)
-        console.log(data); // Handle the data received from the server
+        if(data.success){
+          navigation.navigate('OTP')
+          console.log(data)
+        }
+        else{
+          Alert.alert('Registration Failed', 'Please fill in all fields.')
+          console.log(data)
+        }
+        ; // Handle the data received from the server
       })
       .catch((err) => {
         console.error('Error during registration:', err); // Handle errors
@@ -185,6 +207,21 @@ const RegisterScreen = () => {
           <View style={{ marginVertical: responsiveHeight(1),marginLeft:responsiveWidth(2), alignItems: 'flex-start' }}>
                 {isErrorGender ? (<Text style={{ color: 'red' }}>*{errorGender}</Text>) : (<Text></Text>)}
           </View>
+
+           {/* Country Picker */}
+        <View style={tw`mb-4`}>
+          <Text style={{ color: 'white', fontSize: width * 0.04, marginBottom: 8 }}>Select Country</Text>
+          <CountryPicker
+            withFilter
+            withFlag
+            withCountryNameButton
+            withAlphaFilter
+            withEmoji
+            onSelect={onSelectCountry}
+            countryCode={selectedCountry?.cca2 || 'US'} // Default to US
+            theme={{ backgroundColor: '#050B18', itemBackgroundColor: '#1a1a1a', fontColor: 'white' }}
+          />
+        </View>
 
           {/* Email Input */}
           <View style={{

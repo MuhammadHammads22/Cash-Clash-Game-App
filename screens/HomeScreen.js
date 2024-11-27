@@ -56,7 +56,6 @@ const HomeScreen = ({ navigation }) => {
   }
 
   const handleGamesClick = (index) => {
-    // console.log(name)
     setSelectedGame(index)
     scrollViewRef.current.scrollToIndex({ index, animated: true })
     // navigation.navigate('GameTierSelection',{game:name})
@@ -327,7 +326,9 @@ const HomeScreen = ({ navigation }) => {
               gameOptions.map((item, index) => {
                 // console.log(item)
                 return (
-                  <TouchableOpacity key={index} onPress={() => { handleGamesClick(index) }}>
+                  <TouchableOpacity key={index} onPress={() => {
+                    console.log(index)
+                     handleGamesClick(index) }}>
                     <View key={index} style={{ alignItems: 'center', justifyContent: 'center', marginHorizontal: responsiveWidth(2) }}>
                       <View style={{ justifyContent: 'center', alignItems: 'center', padding: responsiveWidth(2), borderRadius: responsiveHeight(10) }}>
                         <Image

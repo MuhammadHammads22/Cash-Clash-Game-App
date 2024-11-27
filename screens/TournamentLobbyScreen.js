@@ -1,11 +1,14 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Svg, { Line, Path } from 'react-native-svg';
 import { responsiveWidth, responsiveHeight, responsiveFontSize } from 'react-native-responsive-dimensions';
 
-const TournamentLobbyScreen = () => {
+const TournamentLobbyScreen = ({ route, navigation }) => {
   const scrollViewRef = useRef();
-
+  const { game, type, amount } = route.params
+  useEffect(()=>{
+    console.log(route.params)
+    },[])
   const scrollToSecondRound = () => {
     scrollViewRef.current.scrollTo({ x: 170, animated: true });
   };

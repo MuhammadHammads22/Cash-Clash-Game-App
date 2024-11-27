@@ -87,6 +87,7 @@ const LoginScreen = () => {
       .then((res) => res.json()) // Parse the response as JSON
       .then((data) => {
     setIsLoading(false)
+    console.log(data)
     if(data.success) navigation.navigate('HomeGraph')
         console.log(data); // Handle the data received from the server
       })

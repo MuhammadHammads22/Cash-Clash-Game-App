@@ -6,34 +6,61 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import Ant from 'react-native-vector-icons/AntDesign'
 import ludoBackgroundimage from '../assets/images/tierSelectionBackground.png'
 import coinIcon from '../assets/images/coinIcon.png'
+import { io } from 'socket.io-client';
 
 
 
 
 
 const MatchMakingScreen = ({ route, navigation }) => {
-const { game, type, amount } = route.params
-// console.log(route.params)
+  const { game, type, amount } = route.params
+
+  const [socket, setSocket] = useState(null);
+  const [gameRoom, setGameRoom] = useState(null);
   const [loading, setLoading] = useState(true); // Track loading state
   const animatedValue = useRef(new Animated.Value(0)).current;
+
+
+  useEffect(()=>{
+    async function start(){
+      const newSocket = await io('http://10.0.2.2:3000');
+      setSocket(newSocket);
+      newSocket.emit('playGame', { game, amount, type  });
+
+      // Listen for events from the server
+      newSocket.on('gameStart', ({ roomId, gameType, tier }) => {
+        console.log("game started")
+        setLoading(false)
+        handleNavigation()
+        setGameRoom({ roomId, gameType, tier });
+      });
+    }
+    start()
+
+  },[])
+
+
+
+// console.log(route.params)
+ 
     const handleNavigation = () => {
-      
-    if (game === 'Chess') {
-      if (type === 0) {
+
+    if (game === 0) {
+      if (type === 1) {
         navigation.navigate('ChessOffline', { amount });
       } 
     }
-    if (game === 'Ludo') {
+    if (game === 1) {
       if (type === 1) {
         navigation.navigate('LudoOnline', { amount });
      
     }
-    if (game === 'Backgammon') {
+    if (game === 2) {
       if (type === 1) {
         navigation.navigate('BackgammonOffline', { amount });
       }
     }
-    if (game === 'Dominoes') {
+    if (game === 3) {
       if (type === 1) {
         navigation.navigate('DominoesOnline', { amount });
       } 
@@ -42,14 +69,7 @@ const { game, type, amount } = route.params
   };
 }
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setLoading(false);
-      setTimeout(()=>{
-        navigation.pop();
-        handleNavigation();
-      },1000)
-      
-    }, 5000);
+   
   
     // Function to start the animation
     const startAnimation = () => {
@@ -79,7 +99,6 @@ const { game, type, amount } = route.params
 
     // Stop the animation if loading becomes false
     return () => {
-      clearTimeout(timeoutId); 
       animatedValue.stopAnimation(() => {
         Animated.timing(animatedValue, {
           toValue: 0.5, // 0.5 corresponds to the center in interpolation
