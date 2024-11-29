@@ -1,5 +1,5 @@
 import { useRoute } from '@react-navigation/native'
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import { View, Animated, StyleSheet, Easing, Button, Text, Image, ImageBackground, TouchableOpacity } from 'react-native';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
@@ -7,36 +7,38 @@ import Ant from 'react-native-vector-icons/AntDesign'
 import ludoBackgroundimage from '../assets/images/tierSelectionBackground.png'
 import coinIcon from '../assets/images/coinIcon.png'
 import { io } from 'socket.io-client';
+import { ThemeContext } from '../Themes/AppContext';
+
+
 
 
 
 
 
 const MatchMakingScreen = ({ route, navigation }) => {
+  // const { socket,setSocket } = useState()
   const { game, type, amount } = route.params
-
-  const [socket, setSocket] = useState(null);
-  const [gameRoom, setGameRoom] = useState(null);
   const [loading, setLoading] = useState(true); // Track loading state
   const animatedValue = useRef(new Animated.Value(0)).current;
+  const { socket,theme, toggleTheme } = useContext(ThemeContext);
 
 
   useEffect(()=>{
     async function start(){
-      const newSocket = await io('http://10.0.2.2:3000');
-      setSocket(newSocket);
-      newSocket.emit('playGame', { game, amount, type  });
-
+      // setSocket(newSocket);
+      socket.emit("playGame",route.params)
+     
       // Listen for events from the server
-      newSocket.on('gameStart', ({ roomId, gameType, tier }) => {
-        console.log("game started")
+      socket.on('matchMake', ({ roomId, gameType, tier }) => {
         setLoading(false)
         handleNavigation()
-        setGameRoom({ roomId, gameType, tier });
       });
     }
     start()
 
+    return ()=>{
+      socket.off("matchMake")
+    }
   },[])
 
 

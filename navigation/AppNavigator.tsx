@@ -40,7 +40,7 @@ export type RootStackParamList = {
 
 const AppNavigator = () => {
   const [isConnected, setIsConnected] = useState(null);
-  console.log(isConnected)
+  // console.log(isConnected)
   useEffect(() => {
     // Check the internet connection status when the app starts
     const checkConnection = async () => {
