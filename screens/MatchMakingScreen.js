@@ -8,6 +8,7 @@ import ludoBackgroundimage from '../assets/images/tierSelectionBackground.png'
 import coinIcon from '../assets/images/coinIcon.png'
 import { io } from 'socket.io-client';
 import { ThemeContext } from '../Themes/AppContext';
+import { useSelector } from 'react-redux';
 
 
 
@@ -21,12 +22,13 @@ const MatchMakingScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true); // Track loading state
   const animatedValue = useRef(new Animated.Value(0)).current;
   const { socket,theme, toggleTheme } = useContext(ThemeContext);
-
+  const { token, userData } = useSelector((state) => state.user);
+  console.log(userData.name)
 
   useEffect(()=>{
     async function start(){
       // setSocket(newSocket);
-      socket.emit("playGame",route.params)
+      socket.emit("playGame",{gameInfo:route.params,userInfo:userData})
      
       // Listen for events from the server
       socket.on('matchMake', ({ roomId, gameType, tier }) => {

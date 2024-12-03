@@ -1,714 +1,197 @@
-import { Animated, BackHandler, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import {  SafeAreaView, StyleSheet, View } from 'react-native'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 
 
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import BoardTile from '../components/BoardTile'
-import  Icon  from 'react-native-vector-icons/FontAwesome5'
-import { checkBishopMove, checkCastling, checkKingMove, checkKnightMove, checkPawnMove, checkPotentialBlockMoves, checkQueenMove, checkRookMove, isInCheck } from '../backend/MoveValidation'
-import { FA5Style } from 'react-native-vector-icons/FontAwesome5'
-import PlayerCard from '../components/PlayerCard'
-import { LinearGradient } from 'expo-linear-gradient';
-import ActionButton from '../components/ActionButton'
-import Chessboard from 'react-native-chessboard';
-
-// Responsive
-import { Dimensions} from 'react-native'
+import { Dimensions } from 'react-native'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
-import { Socket } from 'socket.io-client'
 import { useRoute } from '@react-navigation/native'
 import { ThemeContext } from '../Themes/AppContext'
-const Width=Dimensions.get('window').width
+import ChessBoard, { ChessboardRef } from 'react-native-chessboard';
+import { style } from 'twrnc'
 
-type LocalGameProps =  NativeStackScreenProps<RootStackParamList,'LocalGame'>
+function extractMoveWithoutChessJS(prevFen, newFen) {
+  // Extract board positions from the FEN
+  const prevBoard = prevFen.split(" ")[0];
+  const newBoard = newFen.split(" ")[0];
 
-export interface ChessBoardPiece{
-  piece:string,pieceColor:string,row:number,column:number,isMoveValid?:boolean
+  // Split rows into arrays
+  const prevRows = prevBoard.split("/");
+  const newRows = newBoard.split("/");
+
+  let from = null;
+  let to = null;
+
+  // Iterate through the rows
+  for (let i = 0; i < 8; i++) {
+    const prevRow = expandFENRow(prevRows[i]);
+    const newRow = expandFENRow(newRows[i]);
+
+    // Compare columns in each row
+    for (let j = 0; j < 8; j++) {
+      if (prevRow[j] !== newRow[j]) {
+        if (prevRow[j] !== ".") {
+          from = `${String.fromCharCode(97 + j)}${8 - i}`; // 'a'-'h' for columns, '8'-'1' for rows
+        }
+        if (newRow[j] !== ".") {
+          to = `${String.fromCharCode(97 + j)}${8 - i}`;
+        }
+      }
+    }
+  }
+
+  // Return the detected move
+  return from && to ? { from, to } : null;
+}
+
+// Helper function to expand FEN row notation (e.g., '8' -> '........', '3p4' -> '...p....')
+function expandFENRow(row) {
+  return row
+    .split("")
+    .map((char) =>
+      isNaN(char) ? char : ".".repeat(parseInt(char))
+    )
+    .join("");
 }
 
 
 
-const PlayLocal = ({navigation}:LocalGameProps) => {
+
+const Width = Dimensions.get('window').width
+
+type LocalGameProps = NativeStackScreenProps<RootStackParamList, 'LocalGame'>
+
+export interface ChessBoardPiece {
+  piece: string, pieceColor: string, row: number, column: number, isMoveValid?: boolean
+}
+
+const flipBoardForBlack = (fen, color) => {
+  if (color === 'black') {
+    // Flip the FEN string: reverse the ranks
+    const fenParts = fen.split(' '); // Split FEN into position and game details
+    const board = fenParts[0].split('/'); // Get the board position (before the space)
+
+    // Reverse the ranks and swap case for black player
+    const flippedBoard = board.reverse().map(rank => {
+      return rank.split('').reverse().join('');
+    });
+console.log('inverted for black',flippedBoard.join('/') + ' ' + fenParts.slice(1).join(' '))
+    // Join the flipped ranks and return the new FEN with 'b' or 'w' to move
+    return flippedBoard.join('/') + ' ' + fenParts.slice(1).join(' '); // Add 'w' or 'b' to move (from original FEN);
+  }
+  
+  // For white player, return the original FEN
+  console.log('not inverted for white',fen)
+  return fen;
+};
+
+const PlayLocal = ({ navigation }: LocalGameProps) => {
   const route = useRoute().params
 
-  const { socket,theme, toggleTheme } = useContext(ThemeContext);
-  const [fen, setFen] = useState('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1'); // Initial FEN for the board
-  const [currentTurn, setCurrentTurn] = useState('white'); // Track whose turn it is
+  const { socket, theme, toggleTheme } = useContext(ThemeContext);
   const [gameOver, setGameOver] = useState(false);
+  const [currentTurn, setCurrentTurn] = useState(''); // Keep track of whose turn it is
+  const [playerColor, setPlayerColor] = useState(''); // Set 'white' or 'black' for the user
+  const [fenState, setFenState] = useState(playerColor=='black'?"RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr b KQkq e3 0 1":'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq e3 0 1'); // Initial FEN for the board
+  const chessboardRef = useRef<ChessboardRef>(null);
 
   useEffect(() => {
+    (async () => {
+      await chessboardRef.current?.move({ from: 'e2', to: 'e4' });
+      // await chessboardRef.current?.move({ from: 'e7', to: 'e5' });
+      // await chessboardRef.current?.move({ from: 'd1', to: 'f3' });
+      // await chessboardRef.current?.move({ from: 'a7', to: 'a6' });
+      // await chessboardRef.current?.move({ from: 'f1', to: 'c4' });
+      // await chessboardRef.current?.move({ from: 'a6', to: 'a5' });
+      // await chessboardRef.current?.move({ from: 'f3', to: 'f7' });
+    })();
+  }, []);
+
+  const move = (state) => {
+    if (playerColor !== currentTurn) {
+      alert("Not your turn!");
+      return;
+    }
+    
+    // Send move to server via socket
+    socket.emit('updateChessState', {state});
+  
+    // Update turn
+    setCurrentTurn(currentTurn === 'white' ? 'black' : 'white');
+  };
+
+  useEffect(()=>{
+    socket.on('assignColorAndLead',({color,lead})=>{
+      setPlayerColor(color)
+      setCurrentTurn(lead)
+      setFenState(flipBoardForBlack(fenState,color))
+      socket.off('assignColorAndLead');
+    })
+    
+  },[])
+
+
+  useEffect(() => {
+    // setFenState('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1')
     if (socket) {
       // Listen for chess state updates
-      socket.on('gameStart',(gameInfo)=>{
-        setFen(gameInfo.state)
+      socket.on('gameStart', (gameInfo) => {
+        // console.log("gameStart     ",gameInfo)
       })
-      socket.on('chessStateUpdate', (newState) => {
-        console.log(newState)
-        setFen(newState.fen); // Update FEN position
+     
+      socket.on('chessStateUpdate', async (state) => {
+        console.log('opponent moved')
+        await chessboardRef.current?.move({ from: state.from, to: state.to });
+        setFenState(state.fen); // Update FEN position
       });
 
       return () => {
         socket.off('chessStateUpdate');
+        socket.off('gameStart')
       };
     }
   }, [socket]);
-  
-  // const chessboard:ChessBoardPiece[][] = [
-  //   [
-  //     {piece:'chess-rook',pieceColor:'black',row:0,column:0,isMoveValid:false},
-  //     {piece:'chess-knight',pieceColor:'black',row:0,column:1,isMoveValid:false},
-  //     {piece:'chess-bishop',pieceColor:'black',row:0,column:2,isMoveValid:false},
-  //     {piece:'chess-king',pieceColor:'black',row:0,column:3,isMoveValid:false},
-  //     {piece:'chess-queen',pieceColor:'black',row:0,column:4,isMoveValid:false},
-  //     {piece:'chess-bishop',pieceColor:'black',row:0,column:5,isMoveValid:false},
-  //     {piece:'chess-knight',pieceColor:'black',row:0,column:6,isMoveValid:false},
-  //     {piece:'chess-rook',pieceColor:'black',row:0,column:7,isMoveValid:false},
-  //   ],
-  //   [
-  //     {piece:'chess-pawn',pieceColor:'black',row:1,column:0,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'black',row:1,column:1,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'black',row:1,column:2,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'black',row:1,column:3,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'black',row:1,column:4,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'black',row:1,column:5,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'black',row:1,column:6,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'black',row:1,column:7,isMoveValid:false},
-  //   ],
-  //   [
-  //     {piece:'',pieceColor:'',row:2,column:0,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:2,column:1,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:2,column:2,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:2,column:3,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:2,column:4,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:2,column:5,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:2,column:6,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:2,column:7,isMoveValid:false},
-  //   ],
-  //   [
-  //     {piece:'',pieceColor:'',row:3,column:0,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:3,column:1,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:3,column:2,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:3,column:3,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:3,column:4,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:3,column:5,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:3,column:6,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:3,column:7,isMoveValid:false},
-  //   ],
-  //   [
-  //     {piece:'',pieceColor:'',row:4,column:0,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:4,column:1,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:4,column:2,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:4,column:3,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:4,column:4,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:4,column:5,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:4,column:6,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:4,column:7,isMoveValid:false},
-  //   ],
-  //   [
-  //     {piece:'',pieceColor:'',row:5,column:0,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:5,column:1,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:5,column:2,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:5,column:3,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:5,column:4,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:5,column:5,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:5,column:6,isMoveValid:false},
-  //     {piece:'',pieceColor:'',row:5,column:7,isMoveValid:false},
-  //   ],
-  //   [
-  //     {piece:'chess-pawn',pieceColor:'white',row:6,column:0,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'white',row:6,column:1,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'white',row:6,column:2,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'white',row:6,column:3,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'white',row:6,column:4,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'white',row:6,column:5,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'white',row:6,column:6,isMoveValid:false},
-  //     {piece:'chess-pawn',pieceColor:'white',row:6,column:7,isMoveValid:false},
-  //   ],
-  //   [
-  //     {piece:'chess-rook',pieceColor:'white',row:7,column:0,isMoveValid:false},
-  //     {piece:'chess-knight',pieceColor:'white',row:7,column:1,isMoveValid:false},
-  //     {piece:'chess-bishop',pieceColor:'white',row:7,column:2,isMoveValid:false},
-  //     {piece:'chess-king',pieceColor:'white',row:7,column:3,isMoveValid:false},
-  //     {piece:'chess-queen',pieceColor:'white',row:7,column:4,isMoveValid:false},
-  //     {piece:'chess-bishop',pieceColor:'white',row:7,column:5,isMoveValid:false},
-  //     {piece:'chess-knight',pieceColor:'white',row:7,column:6,isMoveValid:false},
-  //     {piece:'chess-rook',pieceColor:'white',row:7,column:7,isMoveValid:false},
-  //   ],
- 
-  // ]
-  
-  // const [player,setPlayer]=useState('')
-  // const [isWinner,setIsWinner]=useState('')
-  // const [gameState,setGameState]=useState(chessboard)
-  // const [lostWhitePiece,setLostWhitePiece]=useState<ChessBoardPiece[]>([])
-  // const [lostBlackPiece,setLostBlackPiece]=useState<ChessBoardPiece[]>([])
-  // const [selectedPiece,setSelectedPiece]=useState<ChessBoardPiece>({piece:'',pieceColor:'',row:0,column:0,isMoveValid:false})
-  // const [isCheck,setIsCheck]=useState(false)
-  
-  // const [promotionPiece,setPromotionPiece]=useState({row:0,column:0,isPromotion:false})
-  
-  // const [isCastlingAllowed,setIsCastlingAllowed]=useState([{left:true,right:true},{left:true,right:true}])
-  
-  // const [screenWidth,setScreenWidth]=useState(Width)
-
-
- 
-
-
-
-
-
-
-
-
-
-  // useEffect(()=>{
-  //   Dimensions.addEventListener('change', ({window:{width,height}})=>{
-  //     setScreenWidth(width)
-  //   })
-    
-  //   const back=BackHandler.addEventListener('hardwareBackPress',()=>{
-  //     navigation.navigate('Home') 
-  //     return true})
-      
-  //   },[])
-
-  // Checks if the king is in check or not
-  // const checkKingState = async ()=>{
-  //   setIsCheck(await isInCheck(gameState,player==='white'? 'white' : 'black'))
-  //   // console.log(isCheck)
-  // }
-  
-  // // Check the castling direction
-  // const castleDirectionCheck=async()=>{
-  //   let direction:string[]=[]
-
-  //   direction = await checkCastling(gameState,player==='white'?'white':'black')
-
-  //   if(isCastlingAllowed[0] && player==='white'){
-
-  //       if(isCastlingAllowed[0].left===true){
-  //       if(direction.find(obj=>obj==='left')){
-  //         gameState[7][1].isMoveValid=true
-  //         // console.log(direction)
-  //       }
-  //     }
-
-  //     if(isCastlingAllowed[0].right===true){
-  //       if(direction.find(obj=>obj==='right')){
-  //         gameState[7][5].isMoveValid=true
-  //       }
-  //     }
-  //   }
-    
-  //   if(isCastlingAllowed[1] && player==='black'){
-
-  //     if(isCastlingAllowed[1].left===true){
-  //       if(direction.find(obj=>obj==='left')){
-  //         gameState[0][1].isMoveValid=true
-  //       }
-  //     }
-
-  //     if(isCastlingAllowed[1].right===true){
-  //       if(direction.find(obj=>obj==='right')){
-  //         gameState[0][5].isMoveValid=true
-  //       }
-  //     }
-  //   }
-
-
-  // }
-    
-  // // Gives suggetion of the valid moves for the selected piece
-  // const onPieceSelected= async ({piece,pieceColor,row,column,isMoveValid}:ChessBoardPiece)=>{
-  //   let newGameState = [...gameState];
-  //   if(isWinner){
-  //     return
-  //   }
-
-  //   checkKingState()
-
-  //   newGameState.map((innerArray)=>{
-  //     innerArray.map((obj)=>{
-  //       obj.isMoveValid=false
-  //     })
-  //   })
-    
-  //   switch(piece){
-  //     case 'chess-pawn':
-  //         newGameState=checkPawnMove(gameState,{piece,pieceColor,row,column,isMoveValid})
-  //         break;
-  //     case 'chess-rook':
-  //         newGameState=checkRookMove(gameState,{piece,pieceColor,row,column,isMoveValid})
-  //         break;
-  //     case 'chess-knight':
-  //         newGameState=checkKnightMove(gameState,{piece,pieceColor,row,column,isMoveValid})
-  //         break;
-  //     case 'chess-bishop':
-  //         newGameState=checkBishopMove(gameState,{piece,pieceColor,row,column,isMoveValid})
-  //         break;
-  //     case 'chess-queen':
-  //         newGameState=checkQueenMove(gameState,{piece,pieceColor,row,column,isMoveValid})
-  //         break;
-  //     case 'chess-king':
-  //         newGameState=checkKingMove(gameState,{piece,pieceColor,row,column,isMoveValid})
-  //         if(isCheck!==true && isCastlingAllowed ){
-  //           await castleDirectionCheck()
-  //           console.log('Here')
-  //         }
-  //       break;    
-  //     default:
-  //         console.log('Please select valid piece')
-  //         break;
-  //   }
-
-    
-  //   setGameState(newGameState)
-  //   // checkIsWinner(pieceColor,row,column)
-  // }
-
-  // // Selects the destination or target square to make move
-  // const selectMove = async (row:number,column:number)=>{
-  //   let newGameState = [...gameState];
-  //   const currentSquareState=newGameState[row][column]
-
-    
-  //   if(selectedPiece.piece==='chess-rook' || selectedPiece.piece === 'chess-king'){
-  //     if(selectedPiece.pieceColor==='white'){
-  //       if(column==0){
-  //         isCastlingAllowed[0].left=false
-  //       }else if(column===7){
-  //         isCastlingAllowed[0].right=false
-  //       }else{
-  //         isCastlingAllowed[0].left=false
-  //         isCastlingAllowed[0].right=false
-  //       }
-  //     }else{
-  //       if(column==0){
-  //         isCastlingAllowed[1].left=false
-  //       }else if(column===7){
-  //         isCastlingAllowed[1].right=false
-  //       }else{
-  //         isCastlingAllowed[1].left=false
-  //         isCastlingAllowed[1].right=false
-  //       }
-  //     }
-  //   }
-    
-  //   if(isCastlingAllowed && selectedPiece.piece==='chess-king'){
-  //     makeMove(currentSquareState)
-  //     if(column===1){
-  //       selectedPiece.piece='chess-rook'
-  //       selectedPiece.column=0
-  //       makeMove(newGameState[row][2])
-        
-  //       return
-  //     }else if(column==5){
-  //       selectedPiece.piece='chess-rook'
-  //       selectedPiece.column=7
-  //       makeMove(newGameState[row][4])
-  //       console.log(isCastlingAllowed)
-  //       return
-  //     }
-  //   }
- 
-    
-  //   if(isCheck){
-  //     console.log("King Is In Check")
-
-  //     const availableMoves=await checkPotentialBlockMoves(gameState,player==='white'? 'white' : 'black')
-  //     const res=availableMoves.find(moves=>moves.row===currentSquareState.row && moves.column===currentSquareState.column)
-  //     if(availableMoves.length===0){
-  //       setIsWinner(player==='white'? 'black won the Game' : 'white won the game')
-  //     }
-
-  //     if(res!=undefined){
-  //      makeMove(currentSquareState)
-  //     }
-
-  //   }else{
-  //     makeMove(currentSquareState)
-  //   }
-
-  // }
-
-  // // Updates the game state and piece position
-  // const makeMove= ({piece,pieceColor,row,column,isMoveValid}:ChessBoardPiece)=>{
-  //   let newGameState = [...gameState];
-
-  //   if(piece!==''){
-  //     // Collects lost pieces
-  //     const lostPiece:ChessBoardPiece={
-  //       piece: piece,
-  //       pieceColor: pieceColor,
-  //       row:row,
-  //       column:column,
-  //       isMoveValid:false
-  //     }
-
-  //     if(pieceColor==='white'){
-  //       let temp = lostWhitePiece
-  //       temp.push(lostPiece)
-  //       setLostWhitePiece(temp)
-
-  //     }else{
-  //       let temp = lostBlackPiece
-  //       temp.push(lostPiece)
-  //       setLostBlackPiece(temp)
-  //     }
-  //   }
-
-    
-  //   newGameState[row][column] = {
-  //     row:row,
-  //     column:column,
-  //     piece: selectedPiece.piece,
-  //     pieceColor: selectedPiece.pieceColor,
-  //     isMoveValid: false,
-  //   };
-
-  //   // Pawn Promotion - Special Move
-  //   if(selectedPiece.piece==='chess-pawn' && (row===0 || row===7)){
-  //     setPromotionPiece({
-  //       row:row,
-  //       column:column,
-  //       isPromotion:true
-  //     })
-  //   }
-
-  //   newGameState[selectedPiece.row][selectedPiece.column] = {
-  //     piece: '',
-  //     pieceColor: '',
-  //     isMoveValid: false,
-  //     row:selectedPiece.row,
-  //     column:selectedPiece.column
-  //   };
-     
-  //   checkKingState()
-
-  //   newGameState.map((innerArray)=>{
-  //     innerArray.map((obj)=>{
-  //       newGameState[obj.row][obj.column].isMoveValid=false
-  //     })
-  //   })
-
-  //   setSelectedPiece(
-  //     {piece:'',pieceColor:'',row:0,column:0,isMoveValid:false}
-  //   )
-
-  //   setGameState(newGameState)
-  //   checkIsWinner()
-  //   setPlayer(selectedPiece.pieceColor==='white'? 'black' : 'white')
- 
-  // }
-
-  // // Check if the game is over or not
-  // const checkIsWinner = ()=>{
-  //   const blackKing=gameState.flatMap((innerArray) =>
-  //     innerArray.filter((obj) => obj.piece=='chess-king')
-  //   );
-
-  //   if(blackKing.length==1){
-  //     setIsWinner(`Player ${blackKing[0].pieceColor==='black'? 'White': 'Black'} has won the game`)
-  //   }
-  //   // console.log(player)
-  // }
-
-  // // Promotes the pawn
-  // const promotePawn=({piece,pieceColor,row,column}:ChessBoardPiece)=>{
-  //   gameState[row][column].piece=piece
-  //   gameState[row][column].pieceColor=pieceColor
-  //   gameState[row][column].isMoveValid=false
-
-  //   setPromotionPiece({
-  //     row:row,
-  //     column:column,
-  //     isPromotion:false
-  //   })
-  // }
-
-  // // Player Resign
-  // const resignMatch=()=>{
-    
-  //   if(!isWinner){
-  //   setIsWinner(player.charAt(0).toUpperCase()+ player.slice(1)+
-  //     ' forfeited \n'+ (player==='white'? 'Player Black won the match' :
-  //     'Player White won the match')) 
-  //   } 
-  // }
-
-  // // Reset the match
-  // const resetMatch=()=>{
-  //   setIsWinner('')
-  //   setLostBlackPiece([])
-  //   setLostWhitePiece([])
-  //   setSelectedPiece({piece:'',pieceColor:'',row:0,column:0,isMoveValid:false})
-  //   setIsCheck(false)
-  //   setPromotionPiece({row:0,column:0,isPromotion:false})
-  //   setIsCastlingAllowed([{left:true,right:true},{left:true,right:true}])
-  //   setPlayer('white')
-  //   setGameState(chessboard)
-  // }
 
   return (
-  //   <LinearGradient
-  //   colors={['#004d4d', '#009999']}
-  //   start={{ x: 0, y: 0 }} // Starting point (optional)
-  //   end={{ x: 1, y: 1 }}   // Ending point (optional)
-  //   style={[styles.container, { width: "100%" }]} // Apply the gradient to the entire container
-  // >
-
-  //     <ScrollView showsVerticalScrollIndicator={false} >
-  //     {screenWidth.toFixed() > '650' ? (
-  //       <View style={{ flexDirection:'row-reverse' }}>
-
-  //         <View style={styles.boardContainer}>
-            
-  //           <FlatList
-  //             data={gameState}
-  //             scrollEnabled={false}
-  //             renderItem={({item,index})=>(
-  //               <FlatList
-  //                 data={item}
-  //                 numColumns={8}
-  //                 scrollEnabled={false}
-  //                 keyExtractor={(item) => `${item.column}-${item.row}`}
-  //                 renderItem={({item,index})=>(
-
-  //                   <Pressable onPress={()=>{
-  //                     if(player==item.pieceColor || (item.pieceColor=='white' && player==='white')){
-
-  //                     onPieceSelected({
-  //                       piece:item.piece,
-  //                       pieceColor:item.pieceColor,
-  //                       row:item.row,
-  //                       column:item.column,
-  //                       isMoveValid:item.isMoveValid})
-
-  //                     setSelectedPiece({
-  //                       piece:item.piece,
-  //                       pieceColor:item.pieceColor,
-  //                       row:item.row,
-  //                       column:item.column,
-  //                       isMoveValid:false
-  //                     }) 
-  //                   }
-
-  //                     if(item.isMoveValid){
-  //                       selectMove(item.row,item.column)
-  //                     }
-                      
-  //                   }}
-                    
-  //                   key={`${item.column}+${item.row}+${index}`}
-  //                   >
-  //                     <BoardTile color={item.pieceColor} piece={item.piece} bgColor={(item.row+item.column)%2==0 ? '#B58763' :'#F1D8B7'} isValid={item.isMoveValid} />
-  //                   </Pressable>
-  //                 )}
-  //               />
-  //             )}
-  //           />
-
-  //         </View>
-
-  //         <View>
-  //           <View style={styles.playerCardContainer}>
-  //             <PlayerCard name='White' />
-  //             {isWinner? (
-  //               <Text style={[styles.playerTurnText,{backgroundColor:'#1e9de6',color:'#fff',fontWeight:'bold'}]}>{isWinner}</Text>
-  //             ):(
-  //               <Text style={styles.playerTurnText}>{player.charAt(0).toUpperCase() + player.slice(1) + " 's move"}</Text>
-  //             )}
-  //             <PlayerCard name='Black' />
-  //           </View>
-
-  //           <View style={{ flex:1,alignItems:'flex-end',justifyContent:'space-between',marginHorizontal:15 }}>
-             
-  //             <View style={[styles.lostPieceContainer,]}>
-  //             {lostBlackPiece.map((item,index)=>(
-  //               <Icon name={item.piece} key={index} size={22} color={item.pieceColor} /> 
-  //             ))}
-  //             </View>
-                
-              
-  //             <View style={[styles.lostPieceContainer,]}>
-  //             {lostWhitePiece.map((item,index)=>(
-  //               <Icon name={item.piece} key={index} size={25} color={item.pieceColor} /> 
-  //             ))}
-  //             </View>
-  //           </View>
-            
-  //           <View style={styles.playerCardContainer}>
-  //             {/* <ActionButton actionText='Draw' icon='handshake' /> */}
-  //             <ActionButton actionText='Resign' icon='flag' onPress={resignMatch} />
-  //             <ActionButton actionText='Reset' icon='spinner' onPress={resetMatch} />
-  //           </View>
-  //         </View>
-  //       </View>
-  //     ) : (
-  //       <>
-  //         <View style={styles.playerCardContainer}>
-  //           <PlayerCard name='White' />
-  //           {isWinner? (
-  //             <Text style={[styles.playerTurnText,{backgroundColor:'#1e9de6',color:'#fff',fontWeight:'bold'}]}>{isWinner}</Text>
-  //           ):(
-  //             <Text style={styles.playerTurnText}>{player.charAt(0).toUpperCase() + player.slice(1) + " 's move"}</Text>
-  //           )}
-  //           <PlayerCard name='Black' />
-  //         </View>
-
-  //         <View style={styles.lostPieceContainer}>
-  //         {lostBlackPiece.map((item,index)=>(
-  //           <Icon name={item.piece} key={index} size={22} color={item.pieceColor} /> 
-  //         ))}
-  //         </View>
-
-  //         <View style={styles.boardContainer}>
-            
-  //           <FlatList
-  //             data={gameState}
-  //             scrollEnabled={false}
-  //             renderItem={({item,index})=>(
-
-  //               <FlatList
-  //                 data={item}
-  //                 numColumns={8}
-  //                 scrollEnabled={false}
-  //                 keyExtractor={(item) => `${item.column}-${item.row}`}
-  //                 renderItem={({item,index})=>(
-
-  //                   <Pressable onPress={()=>{
-  //                     if(player==item.pieceColor || (item.pieceColor=='white' && player==='white')){
-
-  //                     onPieceSelected({
-  //                       piece:item.piece,
-  //                       pieceColor:item.pieceColor,
-  //                       row:item.row,
-  //                       column:item.column,
-  //                       isMoveValid:item.isMoveValid})
-
-  //                     setSelectedPiece({
-  //                       piece:item.piece,
-  //                       pieceColor:item.pieceColor,
-  //                       row:item.row,
-  //                       column:item.column,
-  //                       isMoveValid:false
-  //                     }) 
-  //                   }
-
-  //                     if(item.isMoveValid){
-  //                       selectMove(item.row,item.column)
-  //                     }
-                      
-  //                   }}
-                    
-  //                   key={`${item.column}+${item.row}+${index}`}
-  //                   >
-  //                   <BoardTile color={item.pieceColor} piece={item.piece} bgColor={(item.row+item.column)%2==0 ?  '#B58763' :'#F1D8B7'} isValid={item.isMoveValid} />
-  //                   </Pressable>
-  //                 )}
-  //               />
-  //             )}
-  //           />
-
-  //         </View>
-            
-          
-  //         <View style={[styles.lostPieceContainer,]}>
-  //         {lostWhitePiece.map((item,index)=>(
-  //           <Icon name={item.piece} key={index} size={25} color={item.pieceColor} /> 
-  //         ))}
-  //         </View>
-
-  //         <View style={styles.playerCardContainer}>
-  //           {/* <ActionButton actionText='Draw' icon='handshake' /> */}
-  //           <ActionButton actionText='Resign' icon='flag' onPress={resignMatch} />
-  //           <ActionButton actionText='Reset' icon='spinner' onPress={resetMatch} />
-  //         </View>
-
-  //       </>
-  //     )}  
-        
-
-  //     </ScrollView>
-  //     {/* Pawn Promotion Modal Dialog */}
-  //     <Modal 
-  //       visible={promotionPiece.isPromotion}
-  //       transparent={true}
-  //       animationType='none'
-        
-  //     >
-  //       <View style={[styles.modalCenteredView]}>
-  //         <View style={styles.promotionContainer}>
-  //           <Text style={styles.modalHeadingText}>Promote your pawn to any one of these</Text>
-  //         <View style={styles.promotionPieceContainer}>
-  //             <Icon name={'chess-queen'} size={25} color={player!=='white'?'#fff' : 'black'} 
-  //             onPress={()=>promotePawn({
-  //               piece:'chess-queen',
-  //               pieceColor:player!=='white'?'white' : 'black',
-  //               row:promotionPiece.row,
-  //               column:promotionPiece.column
-  //             })}  />    
-  //             <Icon name={'chess-bishop'} size={25} color={player!=='white'?'#fff' : 'black'} 
-  //             onPress={()=>promotePawn({
-  //               piece:'chess-bishop',
-  //               pieceColor:player!=='white'?'white' : 'black',
-  //               row:promotionPiece.row,
-  //               column:promotionPiece.column
-  //             })} />    
-  //             <Icon name={'chess-knight'} size={25} color={player!=='white'?'#fff' : 'black'} 
-  //             onPress={()=>promotePawn({
-  //               piece:'chess-knight',
-  //               pieceColor:player!=='white'?'white' : 'black',
-  //               row:promotionPiece.row,
-  //               column:promotionPiece.column
-  //             })} />    
-  //             <Icon name={'chess-rook'} size={25} color={player!=='white'?'#fff' : 'black'} 
-  //             onPress={()=>promotePawn({
-  //               piece:'chess-rook',
-  //               pieceColor:player!=='white'?'white' : 'black',
-  //               row:promotionPiece.row,
-  //               column:promotionPiece.column
-  //             })}  />    
-  //         </View>
-  //         </View>
-  //       </View>
-  //     </Modal>
-  //     </LinearGradient>
-  <View
-    style={{
-        flex: 1, 
-        alignItems: 'center',
-        justifyContent: 'center'
-    }}
-  >
-  <Chessboard 
-  fen={fen}
-  onMove={({ state }) => {
-    setFen(state.fen); // Update local state with new FEN
-    socket.emit('updateChessState', state); // Emit the move to the opponent
-  }}/>
+    <View style= {[styles.chessboardContainer,
+      playerColor === 'black' && styles.flippedBoard,{flex: 1, alignItems: 'center', justifyContent: 'center',backgrounColor:'red',zIndex:20}] }>
+      <ChessBoard 
+          ref={chessboardRef}
+          fen={fenState}
+          onMove = {({state}) => {
+            // setFen(state.fen); // Update local state with new FEN
+            // socket.emit('updateChessState', state); // Emit the move to the opponent
+            // move(state)
+            // extractMoveWithoutChessJS(fenState,state.fen)
+          }}
+        />
   </View>
-    
-  )
+
+)
 }
 
 
 const styles = StyleSheet.create({
-  container:{
-    flex:1,
-    alignItems:'center',
-    justifyContent:'center',
+  chessboardContainer: {
+    transform: [{ rotate: '0deg' }], // Default for white
   },
-  boardContainer:{
-    width:responsiveWidth(84),
-    marginVertical:10,
-    borderWidth:8,
-    height:responsiveHeight(48),
-    borderRadius:8,
-    borderColor:'#bdbdbd61',
-    alignSelf:'center',
+  flippedBoard: {
+    transform: [{ rotate: '180deg' }], // Rotate 180° for black
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  boardContainer: {
+    width: responsiveWidth(84),
+    marginVertical: 10,
+    borderWidth: 8,
+    height: responsiveHeight(48),
+    borderRadius: 8,
+    borderColor: '#bdbdbd61',
+    alignSelf: 'center',
     // marginHorizontal:5
   },
   modalCenteredView: {
@@ -717,62 +200,62 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  promotionPieceContainer:{
-    width:'100%',
-    height:'100%',
-    flexDirection:'row',
+  promotionPieceContainer: {
+    width: '100%',
+    height: '100%',
+    flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    alignSelf:'center',
-    borderRadius:20,
+    alignSelf: 'center',
+    borderRadius: 20,
   },
-  promotionContainer:{
-    width:300,
-    height:200,
-    padding:10,
-    flexDirection:'column',
+  promotionContainer: {
+    width: 300,
+    height: 200,
+    padding: 10,
+    flexDirection: 'column',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor:'#bcbdbfdf',
-    borderRadius:20, 
+    backgroundColor: '#bcbdbfdf',
+    borderRadius: 20,
   },
-  modalHeadingText:{
-    padding:12,
-    marginTop:20,
-    alignSelf:'flex-start',
-    fontSize:18,
-    fontWeight:'bold',
-    color:'#000'
+  modalHeadingText: {
+    padding: 12,
+    marginTop: 20,
+    alignSelf: 'flex-start',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000'
   },
-  playerCardContainer:{
-    flex:1,
-    flexDirection:'row',
-    justifyContent:'space-between',
-    alignItems:'center',
-    marginTop:8,
+  playerCardContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
     // backgroundColor:'red'
   },
-  playerTurnText:{
-    color:'#fff',
-    fontSize:16,
-    padding:8,
-    fontWeight:'semibold',
-    backgroundColor:'#bdbdbd61',
-    elevation:1,
-    borderRadius:15,
-    flexWrap:'wrap',
-    maxWidth:210,
+  playerTurnText: {
+    color: '#fff',
+    fontSize: 16,
+    padding: 8,
+    fontWeight: 'semibold',
+    backgroundColor: '#bdbdbd61',
+    elevation: 1,
+    borderRadius: 15,
+    flexWrap: 'wrap',
+    maxWidth: 210,
   },
-  lostPieceContainer:{
-    width:345,
-    height:50,
-    flexDirection:'row',
-    columnGap:15,
-    rowGap:2,
-    marginBottom:2,
-    paddingHorizontal:8,
-    flexWrap:'wrap',
-    alignSelf:'center'
+  lostPieceContainer: {
+    width: 345,
+    height: 50,
+    flexDirection: 'row',
+    columnGap: 15,
+    rowGap: 2,
+    marginBottom: 2,
+    paddingHorizontal: 8,
+    flexWrap: 'wrap',
+    alignSelf: 'center'
   }
 })
 

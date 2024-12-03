@@ -17,10 +17,14 @@ import {
 import Button from '../components/Button';
 import tw from 'twrnc';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { validateField } from '../utils/validateField';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import LoginModal from '../components/Modal';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../slices/userSlice';
+import { url } from '../store/urls';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Import Social Login Libraries
 // import * as Google from 'expo-auth-session/providers/google';
@@ -28,6 +32,7 @@ import LoginModal from '../components/Modal';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch()
   const { width, height } = useWindowDimensions();
   const [email, setEmail] = useState('');
   const [errorEmail,setErrorEmail]=useState('')
@@ -74,7 +79,7 @@ const LoginScreen = () => {
     // Placeholder registration logic
     // console.log(email,password)
     setIsLoading(true)
-    await fetch('http://10.0.2.2:3000/auth/login', {
+    await fetch(`${url}auth/login`, {
       method: 'POST', // Correct HTTP method, use uppercase "POST"
       headers: {
         'Content-Type': 'application/json', // Tell the server that you're sending JSON
@@ -88,9 +93,20 @@ const LoginScreen = () => {
       .then((data) => {
     setIsLoading(false)
     console.log(data)
-    if(data.success) navigation.navigate('HomeGraph')
-        console.log(data); // Handle the data received from the server
-      })
+    if(data.success){
+      dispatch(setUser({token: data.token,userData: data.user }));
+      AsyncStorage.setItem("userToken",data.token)
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'HomeGraph' }],
+        })
+      );
+      
+    }else{
+      Alert.alert('Login Failed',data.message)
+    } 
+        })
       .catch((err) => {
         console.error('Error during registration:', err); // Handle errors
       });

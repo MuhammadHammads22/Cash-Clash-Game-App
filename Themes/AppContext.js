@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import { url } from '../store/urls';
 
 // Define the available themes
 const themes = {
@@ -20,7 +21,7 @@ const ThemeProvider = ({ children }) => {
   const [socket, setSocket] = useState('');
   // Function to toggle between light and dark themes
   useEffect(() => {
-    const newSocket = io('http://10.0.2.2:3000');
+    const newSocket = io(url);
     setSocket(newSocket);
 
     // Clean up on unmount

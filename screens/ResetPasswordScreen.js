@@ -23,6 +23,7 @@ import { isValidEmail, validateField } from '../utils/validateField';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import GenderSelection from '../components/GenderSelectionComponent';
 import LoginModal from '../components/Modal';
+import { url } from '../store/urls';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation();
@@ -58,7 +59,7 @@ const ResetPasswordScreen = () => {
   const handleRegister =async () => {
     // Placeholder registration logic
     setIsLoading(true)
-    await fetch('http://10.0.2.2:3000/auth/register', {
+    await fetch(`${url}auth/register`, {
       method: 'POST', // Correct HTTP method, use uppercase "POST"
       headers: {
         'Content-Type': 'application/json', // Tell the server that you're sending JSON

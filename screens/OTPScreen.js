@@ -1,19 +1,23 @@
-import { View, Text, SafeAreaView, TextInput, KeyboardAvoidingView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, SafeAreaView, TextInput, KeyboardAvoidingView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { OtpInput } from "react-native-otp-entry";
+import { useNavigation } from '@react-navigation/native';
+import { url } from '../store/urls';
 
-const OTPScreen = ({ navigation}) => {
+const OTPScreen = ({ navigation,route}) => {
     const [otp, setOtp] = useState()
+
     const handleOptSubmit =async (text) => {
-        await fetch('http://10.0.2.2:3000/auth/verifyOtp', {
+        await fetch(`${url}auth/verifyOtp`, {
             method: 'POST', // Correct HTTP method, use uppercase "POST"
             headers: {
               'Content-Type': 'application/json', // Tell the server that you're sending JSON
             },
             body: JSON.stringify({
-              email: "hammadjb22@gmail.com",
-              otp:text
+              email: route.params.email,
+              otp:text,
+              type:route.params.type
             }),
           })
             .then((res) => {
@@ -22,8 +26,15 @@ const OTPScreen = ({ navigation}) => {
                 
             })
             .then((data) => {
-              console.log(data); // Handle the data received from the server
-              if(data.success) navigation.navigate('Login')
+                if(data.success){
+                    Alert.alert('',data.message)
+                    navigation.navigate('Login')
+                    console.log(data)
+                  }
+                  else{
+                    Alert.alert('Verification Failed', data.message)
+                    console.log(data)
+                  }
             })
             .catch((err) => {
               console.error('Error during registration:', err); // Handle errors

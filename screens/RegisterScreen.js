@@ -23,6 +23,7 @@ import { isValidEmail, validateField } from '../utils/validateField';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import GenderSelection from '../components/GenderSelectionComponent';
 import LoginModal from '../components/Modal';
+import { url } from '../store/urls';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -72,7 +73,7 @@ const RegisterScreen = () => {
   const handleRegister =async () => {
     // Placeholder registration logic
     setIsLoading(true)
-    await fetch('http://10.0.2.2:3000/auth/register', {
+    await fetch(`${url}auth/register`, {
       method: 'POST', // Correct HTTP method, use uppercase "POST"
       headers: {
         'Content-Type': 'application/json', // Tell the server that you're sending JSON
@@ -89,11 +90,12 @@ const RegisterScreen = () => {
       .then((data) => {
         setIsLoading(false)
         if(data.success){
-          navigation.navigate('OTP')
+          Alert.alert('',data.message)
+          navigation.navigate('OTP',{type:'email verification',email:email})
           console.log(data)
         }
         else{
-          Alert.alert('Registration Failed', 'Please fill in all fields.')
+          Alert.alert('Registration Failed', data.message)
           console.log(data)
         }
         ; // Handle the data received from the server
@@ -209,7 +211,7 @@ const RegisterScreen = () => {
           </View>
 
            {/* Country Picker */}
-        <View style={tw`mb-4`}>
+        {/* <View style={tw`mb-4`}>
           <Text style={{ color: 'white', fontSize: width * 0.04, marginBottom: 8 }}>Select Country</Text>
           <CountryPicker
             withFilter
@@ -221,7 +223,7 @@ const RegisterScreen = () => {
             countryCode={selectedCountry?.cca2 || 'US'} // Default to US
             theme={{ backgroundColor: '#050B18', itemBackgroundColor: '#1a1a1a', fontColor: 'white' }}
           />
-        </View>
+        </View> */}
 
           {/* Email Input */}
           <View style={{

@@ -14,9 +14,17 @@ import SimpleIcon from 'react-native-vector-icons/SimpleLineIcons'
 import { LinearGradient } from 'expo-linear-gradient';
 import LottieView from 'lottie-react-native';
 import { ThemeContext } from '../Themes/AppContext';
+import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
+const getToken=async()=>{
+ const token = await AsyncStorage.getItem("userToken")
+ return token
+}
 const HomeScreen = ({ navigation }) => {
+  const { token, userData } = useSelector((state) => state.user);
+  console.log(userData.name)
+  // console.log(getToken())
   const { theme, toggleTheme } = useContext(ThemeContext);
   const gamesData = [{ name: 'Chess', logo: chess }, { name: 'Ludo', logo: ludo }, { name: 'Backgammon', logo: backgammon }, { name: 'Dominoes', logo: dominoes }]
   const gameOptions = [{ game: 'Chess', logo: chess, options: [{ id: 1, name: "2 Players", image: require('../assets/images/logo.png') }, { id: 2, name: "tournament", image: require('../assets/images/tournament.png') }, { id: 3, name: "Private Room", image: require('../assets/images/Chess-Private-Card.png') }] }, { game: 'Ludo', logo: ludo, options: [{ id: 1, name: "2 Players", image: require('../assets/images/Ludo-TwoPlayer-Card.png') }, { id: 2, name: "tournament", image: require('../assets/images/Ludo-Tournament-Card.png') }, { id: 3, name: "Private Room", image: require('../assets/images/Ludo-PrivateRoom-Card.png') }, { id: 4, name: "4 Players", image: require('../assets/images/Ludo-FourPlayer-Card.png') }] }, { game: 'Dominoes', logo: dominoes, options: [{ id: 1, name: "2 Players", image: require('../assets/images/Dominoes-TwoPlayer-Card.png') }, { id: 2, name: "tournament", image: require('../assets/images/Dominoes-Tournament-Card.png') }, { id: 3, name: "Private Room", image: require('../assets/images/Dominoes-PrivateRoom-Card.png') }, { id: 4, name: "4 Players", image: require('../assets/images/Dominoes-FourPlayer-Card.png') }] }, { game: 'Backgammon', logo: backgammon, options: [{ id: 1, name: "2 Players", image: require('../assets/images/Backgammon-TwoPlayer-Card.png') }, { id: 2, name: "tournament", image: require('../assets/images/Backgammon-Private-Card.png') }, { id: 3, name: "Private Room", image: require('../assets/images/Backgammon-Tournament-Card.png') }] }]

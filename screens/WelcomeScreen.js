@@ -12,6 +12,7 @@ import tw from 'twrnc';
 import { useNavigation } from '@react-navigation/native';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import io from 'socket.io-client';
+import { url } from '../store/urls';
 
 // const socket = io('http://10.0.2.2:3000');
 
@@ -38,6 +39,7 @@ const slides = [
 
 
 const WelcomeScreen = () => {
+
   const navigation = useNavigation();
   const { width, height } = useWindowDimensions();
   const [currentSlide, setCurrentSlide] = useState(0);

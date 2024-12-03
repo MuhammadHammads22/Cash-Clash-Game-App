@@ -7,6 +7,9 @@ import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimen
 import ToggleSwitch from 'toggle-switch-react-native'
 import Feather from 'react-native-vector-icons/Feather'
 import { CommonActions } from '@react-navigation/native'
+import { useDispatch } from 'react-redux'
+import { clearUser } from '../slices/userSlice'
+import Constants from 'expo-constants';
 
 
 const SettingsScreen = ({ navigation }) => {
@@ -15,7 +18,10 @@ const SettingsScreen = ({ navigation }) => {
  const handleUpdateProfileNavigation=()=>{
   navigation.navigate('UpdateProfile')
  }
+
+ const dispatch= useDispatch()
  const handleLogOut = () => {
+  dispatch(clearUser())
   navigation.dispatch(
     CommonActions.reset({
       index: 0,
