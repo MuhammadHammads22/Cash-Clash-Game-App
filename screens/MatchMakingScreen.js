@@ -8,7 +8,8 @@ import ludoBackgroundimage from '../assets/images/tierSelectionBackground.png'
 import coinIcon from '../assets/images/coinIcon.png'
 import { io } from 'socket.io-client';
 import { ThemeContext } from '../Themes/AppContext';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setInitialFen, setMatchId, setMyTurn, setPlayer } from '../slices/matchSlice';
 
 
 
@@ -23,15 +24,29 @@ const MatchMakingScreen = ({ route, navigation }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const { socket,theme, toggleTheme } = useContext(ThemeContext);
   const { token, userData } = useSelector((state) => state.user);
-  console.log(userData.name)
+  const dispatch= useDispatch()
+
 
   useEffect(()=>{
     async function start(){
       // setSocket(newSocket);
       socket.emit("playGame",{gameInfo:route.params,userInfo:userData})
-     
       // Listen for events from the server
-      socket.on('matchMake', ({ roomId, gameType, tier }) => {
+      socket.on('matchMake', (data) => {
+        // console.log(data)
+        let playerColor = null;
+        if (data.playerBlack.userInfo.uniqueId === userData.uniqueId) {
+          playerColor = 'black';
+          
+        } else if (data.playerWhite.userInfo.uniqueId === userData.uniqueId) {
+          playerColor = 'white';
+        }
+        dispatch(setPlayer(playerColor))
+        dispatch(setMatchId(data.matchId))
+        // Determine if it's the player's turn
+        const isMyTurn = data.startingPlayer === playerColor;
+        dispatch(setInitialFen(data.startingPlayer=="white"?'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e3 0 1':"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq e3 0 1"))
+        dispatch(setMyTurn(isMyTurn))
         setLoading(false)
         handleNavigation()
       });

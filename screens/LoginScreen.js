@@ -34,10 +34,10 @@ const LoginScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch()
   const { width, height } = useWindowDimensions();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('@gmail.com');
   const [errorEmail,setErrorEmail]=useState('')
   const [isErrorEmail,setIsErrorEmail]=useState(false)
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('admin123123W@');
   const [errorPassword,setErrorPassword]=useState('')
   const [isErrorPassword,setIsErrorPassword]=useState(false)
   const isButtonDisabled = !email.trim()||isErrorEmail||isErrorPassword || !password.trim()
@@ -92,7 +92,7 @@ const LoginScreen = () => {
       .then((res) => res.json()) // Parse the response as JSON
       .then((data) => {
     setIsLoading(false)
-    console.log(data)
+    // console.log(data)
     if(data.success){
       dispatch(setUser({token: data.token,userData: data.user }));
       AsyncStorage.setItem("userToken",data.token)

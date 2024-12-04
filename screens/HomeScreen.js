@@ -23,7 +23,7 @@ const getToken=async()=>{
 }
 const HomeScreen = ({ navigation }) => {
   const { token, userData } = useSelector((state) => state.user);
-  console.log(userData.name)
+  // console.log(userData.name)
   // console.log(getToken())
   const { theme, toggleTheme } = useContext(ThemeContext);
   const gamesData = [{ name: 'Chess', logo: chess }, { name: 'Ludo', logo: ludo }, { name: 'Backgammon', logo: backgammon }, { name: 'Dominoes', logo: dominoes }]
@@ -76,7 +76,7 @@ const HomeScreen = ({ navigation }) => {
   }).current;
 
   const nowPlayGame = () => {
-    console.log(gameTier + ",  " + selectedGame + ", " + selectedGameOption)
+    // console.log(gameTier + ",  " + selectedGame + ", " + selectedGameOption)
     if (selectedGame === 0) {
       if (selectedGameOption === 1) {
         setShowPriceModal(false)
