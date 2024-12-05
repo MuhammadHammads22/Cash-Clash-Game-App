@@ -27,6 +27,7 @@ import PrivateRoom from '../screens/PrivateRoom';
 import FourPlayerMatchMakingScreen from '../screens/FourPlayerMatchMakingScreen';
 import NetInfo from '@react-native-community/netinfo';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import EmailVerificationScreen from '../screens/EmailVerificationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -68,7 +69,7 @@ const AppNavigator = () => {
       <NavigationContainer>
         {/* <AppContext.Provider value={appContext}> */}
         <Stack.Navigator
-          initialRouteName="Welcome"
+          initialRouteName="Login"
           screenOptions={({ navigation }) => ({
             headerShown: false
             // headerStyle: { backgroundColor: '#1E1E1E' },
@@ -107,6 +108,11 @@ const AppNavigator = () => {
           <Stack.Screen
             name="ForgotPassword"
             component={ForgotPasswordScreen}
+            options={{ title: 'Forgot Password' }}
+          />
+          <Stack.Screen
+            name="EmailVerification"
+            component={EmailVerificationScreen}
             options={{ title: 'Forgot Password' }}
           />
           <Stack.Screen

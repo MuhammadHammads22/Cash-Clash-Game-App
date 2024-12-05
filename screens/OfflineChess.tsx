@@ -25,55 +25,42 @@ export interface ChessBoardPiece {
 const PlayLocal = ({ navigation }: LocalGameProps) => {
   const route = useRoute().params
   const dispatch = useDispatch()
+  const { token, userData } = useSelector((state) => state.user);
   const { matchId ,initialFen,player, isMyTurn } = useSelector((state) => state.match)
-  
   const { socket, theme, toggleTheme } = useContext(ThemeContext)
-  const [from,setFrom]=useState('')
-  const [to,setTo]=useState('')
 
 
   const [gameOver, setGameOver] = useState(false)
-  const chessboardRef = useRef<ChessboardRef>(null)
+  const chessboardRef = React.useRef<ChessboardRef>(null)
 
 
   const move = (state) => {
-
     dispatch(setInitialFen(state.fen))
-    // Send move to server via socket
-    // socket.emit('hello','hello')
-    
-    socket.emit("makeMove",{matchId,state})
-    console.log(isMyTurn, player)
     dispatch(setMyTurn(!isMyTurn))
+    socket.emit("makeMove",{matchId,state,userData})
+    console.log("i am "+player+"  my turn "+isMyTurn+" maked a move")
+    
   }
-  useEffect(()=>{
-    if (from || from.trim() !== '') {
-      console.log('String is empty, null, or undefined');
-    (async()=>{
-      await chessboardRef.current?.move({ from: from , to: to })
-    })()
-  }
-   
 
-  },[from,to])
+  // const opponentMove=async(from,to,chessRef)=>{
+  //   await chessRef.current?.move({ from: from , to: to })
+  // }
 
   useEffect(() => {
-    // socket.on('bye',(param)=>{
-    //   console.log(param)
-    //       })
         socket.on('updateMove',async (state) => {
+          console.log(state.fen!==initialFen+'updatemove////////// '+state.fen)
+          if(!isMyTurn&&state.fen!==initialFen){
          const {from,to} = extractMoveWithoutChessJS(initialFen,state.fen)
          console.log('opponent moved from ',from+"to "+to)
-         setFrom(from)
-         setTo(to)
+        //  opponentMove(from,to,chessboardRef)
+          await chessboardRef.current?.move({ from: from , to: to })
           dispatch(setInitialFen(state.fen)) // Update FEN position
           dispatch(setMyTurn(!isMyTurn))
+          }
         })
-
       return () => {
-        // socket.off('chessStateUpdate')
+        socket.off('chessStateUpdate')
       }
-    
   })
 
   // Custom render piece function to rotate pieces based on player color
@@ -97,9 +84,11 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
         //   console.log(piece)
         //   renderPiece(piece)}}
         onMove={({ state }) => {
-          console.log(state)
+          if(isMyTurn){
+          // console.log(state)
           move(state) // Emit the move to the opponent
           // move(state)
+          }
         }}
       />
     </View>

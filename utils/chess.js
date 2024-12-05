@@ -7,8 +7,8 @@ export function extractMoveWithoutChessJS(prevFen, newFen) {
     const prevRows = prevBoard.split("/");
     const newRows = newBoard.split("/");
   
-    let from = null;
-    let to = null;
+    let from = '';
+    let to = '';
   
     // Iterate through the rows
     for (let i = 0; i < 8; i++) {
@@ -29,7 +29,7 @@ export function extractMoveWithoutChessJS(prevFen, newFen) {
     }
   
     // Return the detected move
-    return from && to ? { from, to } : null;
+    return  { from, to } 
   }
   
   // Helper function to expand FEN row notation (e.g., '8' -> '........', '3p4' -> '...p....')

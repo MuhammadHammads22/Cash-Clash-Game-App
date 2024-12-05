@@ -325,7 +325,7 @@ const RegisterScreen = () => {
         </View>
 
         {/* Login Link at the Bottom */}
-        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={tw`mb-4`}>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={[tw`mb-4`,{marginBottom:responsiveHeight(10)}]}>
           <Text style={{
             ...tw`text-center text-white`,
             fontSize: width * 0.04, // Responsive font size

@@ -74,7 +74,7 @@ const WelcomeScreen = () => {
     const scale = currentSlide === index ? 1 : 0.9;
     
     return (
-      <View style={{ width: ITEM_WIDTH,height:responsiveHeight(80), alignItems: 'center', marginHorizontal:responsiveWidth(2)}}>
+      <View style={{ width: responsiveWidth(75),height:responsiveHeight(50), alignItems: 'center', marginHorizontal:responsiveWidth(2)}}>
         <View
           style={{
             transform: [{ scale }],
@@ -89,8 +89,8 @@ const WelcomeScreen = () => {
             source={item.image}
             style={{
               width: ITEM_WIDTH,
-              height: height * 0.5,
-              borderRadius: 20,
+              height: responsiveHeight(50),
+              borderRadius: responsiveWidth(6),
               borderWidth: 2,
               borderColor: '#111827',
             }}
@@ -117,12 +117,12 @@ const WelcomeScreen = () => {
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 }).current;
 
   return (
-    <View style={[tw`flex-1 `, { backgroundColor: '#050B18' }]}>
+    <View style={{ backgroundColor: '#050B18',flex:1}}>
       {/* Logo */}
       <View style={{ alignItems: 'center', }}>
         <Image
           source={require('../assets/images/finallogo.png')}
-          style={{ width: Math.max(width * 0.5, 100), height: Math.max(width * 0.4, 100) }}
+          style={{ width: responsiveWidth(50), height: responsiveHeight(20) }}
           resizeMode="contain"
         />
       </View>
@@ -140,14 +140,16 @@ const WelcomeScreen = () => {
         decelerationRate="fast"
         contentContainerStyle={{
           paddingHorizontal: responsiveWidth(10),
-          marginLeft:responsiveWidth(2)
+          marginLeft:responsiveWidth(2),
+          // backgroundColor:'white',
+          height:responsiveHeight(60)
         }}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewConfigRef}
       />
 
       {/* Slide Indicators */}
-      <View style={[tw`flex-row justify-center mt-4`, { marginBottom: height * 0.02 }]}>
+      <View style={{flexDirection:'row',marginBottom:responsiveHeight(2),justifyContent:'center'}}>
         {slides.map((_, index) => {
           const isActive = index === currentSlide;
           return (
@@ -166,7 +168,7 @@ const WelcomeScreen = () => {
       </View>
 
       {/* Next Button */}
-      <View style={{ paddingHorizontal: 20 }}>
+      <View style={{ paddingHorizontal: responsiveWidth(6),marginBottom:responsiveHeight(8),height:responsiveHeight(6) }}>
         <Button
           title={currentSlide === slides.length - 1 ? 'Start Experience' : 'Next'}
           onPress={handleNext}

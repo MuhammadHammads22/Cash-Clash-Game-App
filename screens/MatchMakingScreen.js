@@ -44,8 +44,11 @@ const MatchMakingScreen = ({ route, navigation }) => {
         dispatch(setPlayer(playerColor))
         dispatch(setMatchId(data.matchId))
         // Determine if it's the player's turn
-        const isMyTurn = data.startingPlayer === playerColor;
-        dispatch(setInitialFen(data.startingPlayer=="white"?'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e3 0 1':"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq e3 0 1"))
+        const isMyTurn = data.startingPlayer == playerColor;
+        console.log("i am "+playerColor+" is my turn"+isMyTurn)
+        dispatch(setInitialFen(data.startingPlayer=="white"?"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"
+))
         dispatch(setMyTurn(isMyTurn))
         setLoading(false)
         handleNavigation()

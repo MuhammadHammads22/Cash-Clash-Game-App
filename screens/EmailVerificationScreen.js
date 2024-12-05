@@ -22,8 +22,9 @@ import { useNavigation } from '@react-navigation/native';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import { isValidEmail, validateField } from '../utils/validateField';
 import LoginModal from '../components/Modal';
+import { url } from '../store/urls';
 
-const ForgotPasswordScreen = () => {
+const EmailVerificationScreen = () => {
   const navigation = useNavigation();
   const { width, height } = useWindowDimensions();
   const [email, setEmail] = useState('');
@@ -39,8 +40,8 @@ const ForgotPasswordScreen = () => {
 
   const handleResetPassword =async () => {
     // Placeholder password reset logic
-    setIsLoading(true)
-    await fetch('http://10.0.2.2:3000/auth/forgotPassword/', {
+    // setIsLoading(true)
+    await fetch(url+'/auth/send-email-verification-otp/', {
       method: 'POST', // Correct HTTP method, use uppercase "POST"
       headers: {
         'Content-Type': 'application/json', // Tell the server that you're sending JSON
@@ -50,20 +51,19 @@ const ForgotPasswordScreen = () => {
       }),
     })
       .then((res) => {
-   
-          // navigation.navigate('Login',email)
-          return res.json()
+        // navigation.navigate('Login',email)
+        res.json()
         }) // Parse the response as JSON
       .then((data) => {
-        setIsLoading(false)
-        console.log(data)
-        if(data.success){
-         navigation.navigate('OTP')
-        }
-        else{
-          setErrorServer(data.message)
-          setIsErrorServer(true)
-        }
+        // setIsLoading(false)
+        
+        // if(data.success){
+        //  navigation.navigate('OTP')
+        // }
+        // else{
+        //   setErrorServer(data.message)
+        //   setIsErrorServer(true)
+        // }
         
         
       })
@@ -83,7 +83,7 @@ const ForgotPasswordScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={[tw`flex-1 bg-gray-900`,{backgroundColor:'#050B18',paddingBottom:responsiveHeight(6)}]}
+      style={[tw`flex-1 bg-gray-900`,{backgroundColor:'#050B18'}]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -96,7 +96,7 @@ const ForgotPasswordScreen = () => {
           visible={isLoading}
         >
       <View backgroundColor={'rgba(50,50,50,.3)'} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator style={{}} size={'medium'} color={'black'} animating={true} />
+            <ActivityIndicator  size={'medium'} color={'black'} animating={true} />
           </View>
         </Modal>
         {/* Main Content */}
@@ -115,7 +115,7 @@ const ForgotPasswordScreen = () => {
             ...tw`text-white text-3xl font-bold mb-6 text-center`,
             fontSize: width * 0.07, // Responsive font size
           }}>
-            Reset Password
+            Verify Email
           </Text>
 
           {/* Instruction Text */}
@@ -123,7 +123,7 @@ const ForgotPasswordScreen = () => {
             ...tw`text-gray-400 mb-6 text-center`,
             fontSize: width * 0.04, // Responsive font size
           }}>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we'll send you a OTP to verify your Email.
           </Text>
 
            {/* Email Input */}
@@ -157,9 +157,9 @@ const ForgotPasswordScreen = () => {
             </Text>
           </TouchableOpacity>
         </View>
-
+            
         {/* Back to Login Link at the Bottom */}
-        <TouchableOpacity  onPress={() => navigation.navigate('Login')} style={tw`mb-4`}>
+        {/* <TouchableOpacity  onPress={() => navigation.navigate('OTP')} style={tw`mb-4`}>
           <Text style={{
             ...tw`text-center text-white`,
             fontSize: width * 0.04, // Responsive font size
@@ -167,10 +167,10 @@ const ForgotPasswordScreen = () => {
             Remembered your password?{' '}
             <Text style={tw`text-yellow-400 font-semibold`}>Login</Text>
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
-export default ForgotPasswordScreen;
+export default EmailVerificationScreen;
