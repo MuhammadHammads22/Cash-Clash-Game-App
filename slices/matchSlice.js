@@ -4,7 +4,8 @@ const initialState = {
     matchId:'',
     initialFen:'',
     player:'',
-    isMyTurn:false
+    isMyTurn:false,
+    opponentInfo:null
 };
 
 const matchSlice = createSlice({
@@ -13,6 +14,9 @@ const matchSlice = createSlice({
   reducers: {
     setPlayer(state, action) {
       state.player = action.payload
+    },
+    setOpponentInfo(state,action){
+      state.opponentInfo=action.payload
     },
     setMyTurn(state, action) {
         state.isMyTurn = action.payload
@@ -32,5 +36,5 @@ const matchSlice = createSlice({
   },
 });
 
-export const { setPlayer, setMyTurn, clearMatchData ,setInitialFen,setMatchId} = matchSlice.actions;
+export const { setPlayer, setMyTurn, clearMatchData ,setInitialFen,setMatchId,setOpponentInfo} = matchSlice.actions;
 export default matchSlice.reducer;

@@ -6,28 +6,46 @@ import Entypo from 'react-native-vector-icons/Entypo'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import ToggleSwitch from 'toggle-switch-react-native'
 import Feather from 'react-native-vector-icons/Feather'
-import { CommonActions } from '@react-navigation/native'
-import { useDispatch } from 'react-redux'
+import { CommonActions, useNavigation } from '@react-navigation/native'
+import { useDispatch, useSelector } from 'react-redux'
 import { clearUser } from '../slices/userSlice'
 import Constants from 'expo-constants';
+import { url } from '../store/urls'
 
 
-const SettingsScreen = ({ navigation }) => {
-
+const SettingsScreen = () => {
+  const navigation = useNavigation();
   const [toggleState,setToggleState]=useState(false)
+  const {email}= useSelector(state=>state.user.userData)
  const handleUpdateProfileNavigation=()=>{
   navigation.navigate('UpdateProfile')
  }
+ console.log(email)
 
  const dispatch= useDispatch()
- const handleLogOut = () => {
-  dispatch(clearUser())
-  navigation.dispatch(
-    CommonActions.reset({
-      index: 0,
-      routes: [{ name: 'Login' }],
-    })
-  );
+ const handleLogOut =async () => {
+  await fetch(`${url}auth/logout`, {
+    method: 'POST', // Correct HTTP method, use uppercase "POST"
+    headers: {
+      'Content-Type': 'application/json', // Tell the server that you're sending JSON
+    },
+    body: JSON.stringify({
+      email: email,
+    }),
+  }).then((res) => res.json()) // Parse the response as JSON
+  .then((data) => {
+    console.log(data)
+    if(data.success){
+      dispatch(clearUser())
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        })
+      );
+    }
+  })
+  
 };
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -38,13 +56,13 @@ const SettingsScreen = ({ navigation }) => {
         backgroundColor: '#050B18', // Optional: Set background color
       },
       headerTitleStyle: {
-        fontSize: responsiveWidth(6), // Set title font size
+        fontSize: Math.round(responsiveWidth(6)), // Set title font size
 
         color: 'white' // Optional: Set font weight
       },
       headerLeft: () => (
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: responsiveWidth(3) }}>
-          <Icon name="chevron-back" size={responsiveWidth(7)} color="white" />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: Math.round(responsiveWidth(3)) }}>
+          <Icon name="chevron-back" size={Math.round(responsiveWidth(7))} color="white" />
         </TouchableOpacity>
       ),
       headerTitleAlign: 'center', // Center the title

@@ -4,6 +4,7 @@ import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimen
 import { OtpInput } from "react-native-otp-entry";
 import { useNavigation } from '@react-navigation/native';
 import { url } from '../store/urls';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const OTPScreen = ({ navigation,route}) => {
     const [otp, setOtp] = useState()
@@ -43,6 +44,9 @@ const OTPScreen = ({ navigation,route}) => {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#050B18' }}>
             <KeyboardAvoidingView>
+            <TouchableOpacity style={{zIndex:10, position: 'absolute', top: responsiveHeight(3), left: responsiveWidth(7) }} onPress={() => { navigation.goBack() }}>
+        <FontAwesome5 name='chevron-left' size={responsiveWidth(8)} color="white" />
+      </TouchableOpacity>
                 {/* input field section */}
                 <View style={{ margin: responsiveWidth(5), marginVertical: responsiveHeight(6), marginTop: responsiveHeight(20), alignitem: 'center' }}>
                     <View style={{ alignItems: 'center', justifyContent: 'center' }}>

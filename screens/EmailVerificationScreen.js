@@ -38,32 +38,31 @@ const EmailVerificationScreen = () => {
   const [errorServer, setErrorServer] = useState("")
 
 
-  const handleResetPassword =async () => {
+  const handleResetPassword = () => {
     // Placeholder password reset logic
     // setIsLoading(true)
-    await fetch(url+'/auth/send-email-verification-otp/', {
+    fetch(`${url}auth/send-email-verification-otp/`, {
       method: 'POST', // Correct HTTP method, use uppercase "POST"
       headers: {
         'Content-Type': 'application/json', // Tell the server that you're sending JSON
       },
       body: JSON.stringify({
-        email: email,
-      }),
+        email: email
+      })
     })
-      .then((res) => {
-        // navigation.navigate('Login',email)
-        res.json()
-        }) // Parse the response as JSON
+      .then((res) => 
+        res.json())
       .then((data) => {
-        // setIsLoading(false)
+        console.log(data)
+        setIsLoading(false)
         
-        // if(data.success){
-        //  navigation.navigate('OTP')
-        // }
-        // else{
-        //   setErrorServer(data.message)
-        //   setIsErrorServer(true)
-        // }
+        if(data.success){
+         navigation.navigate('OTP')
+        }
+        else{
+          setErrorServer(data.message)
+          setIsErrorServer(true)
+        }
         
         
       })

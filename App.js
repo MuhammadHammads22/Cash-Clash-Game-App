@@ -26,7 +26,7 @@ export default function App() {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
       <ThemeProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }} enable={false}>
         <AppNavigator />
       </GestureHandlerRootView>
     </ThemeProvider>

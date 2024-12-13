@@ -1,5 +1,5 @@
 // screens/LoginScreen.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -21,10 +21,11 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { validateField } from '../utils/validateField';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import LoginModal from '../components/Modal';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../slices/userSlice';
 import { url } from '../store/urls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Progress from 'react-native-progress';
 
 // Import Social Login Libraries
 // import * as Google from 'expo-auth-session/providers/google';
@@ -33,11 +34,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const LoginScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch()
+  const data= useSelector(state=>state.user.userData)
   const { width, height } = useWindowDimensions();
-  const [email, setEmail] = useState('@gmail.com');
+  const [email, setEmail] = useState('');
   const [errorEmail, setErrorEmail] = useState('')
   const [isErrorEmail, setIsErrorEmail] = useState(false)
-  const [password, setPassword] = useState('admin123123W@');
+  const [password, setPassword] = useState('');
   const [errorPassword, setErrorPassword] = useState('')
   const [isErrorPassword, setIsErrorPassword] = useState(false)
   const isButtonDisabled = !email.trim() || isErrorEmail || isErrorPassword || !password.trim()
@@ -47,6 +49,17 @@ const LoginScreen = () => {
 
   const [isErrorServer, setIsErrorServer] = useState(false)
   const [errorServer, setErrorServer] = useState("")
+
+useEffect(()=>{
+  if(data){
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'HomeGraph' }],
+      })
+    )
+  }
+},[data])
 
   // Google Sign-In
   // const [request, response, promptAsync] = Google.useAuthRequest({
@@ -144,7 +157,7 @@ const LoginScreen = () => {
             visible={isLoading}
           >
             <View backgroundColor={'rgba(50,50,50,.3)'} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-              <ActivityIndicator style={{}} size={'medium'} color={'black'} animating={true} />
+              <Progress.Circle size={50} indeterminate={true} />
             </View>
           </Modal>
           {/* App Logo */}

@@ -24,6 +24,7 @@ import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimen
 import GenderSelection from '../components/GenderSelectionComponent';
 import LoginModal from '../components/Modal';
 import { url } from '../store/urls';
+import * as Progress from 'react-native-progress';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -135,8 +136,8 @@ const RegisterScreen = () => {
   visible={isLoading}
 >
 <View backgroundColor={'rgba(50,50,50,.3)'} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-    <ActivityIndicator style={{}} size={'medium'} color={'black'} animating={true} />
-  </View>
+<Progress.Circle size={50} indeterminate={true} />
+</View>
 </Modal>
         {/* Main Content */}
         <View>

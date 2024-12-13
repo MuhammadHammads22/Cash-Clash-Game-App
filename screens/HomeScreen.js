@@ -16,7 +16,7 @@ import LottieView from 'lottie-react-native';
 import { ThemeContext } from '../Themes/AppContext';
 import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import emptyProfile from'../assets/images/profileEmpty.jpg'
 const getToken=async()=>{
  const token = await AsyncStorage.getItem("userToken")
  return token
@@ -273,12 +273,24 @@ const HomeScreen = ({ navigation }) => {
           {/* coins component */}
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', borderWidth: responsiveWidth(.5), alignItems: 'center', borderColor: 'gray', borderWidth: responsiveWidth(.5), paddingRight: responsiveWidth(2), borderBottomLeftRadius: responsiveWidth(4), borderTopLeftRadius: responsiveWidth(4), }}>
-              <Text style={{ padding: 1, marginHorizontal: responsiveWidth(4), color: 'white' }}>1000</Text>
+              <Text style={{ padding: 1, marginHorizontal: responsiveWidth(4), color: 'white' }}>{userData.coins}</Text>
             </View>
             <Image source={coinIcon} style={{ width: responsiveWidth(8), height: responsiveWidth(8), transform: [{ translateX: responsiveWidth(-2) }] }} />
           </View>
+          {userData.profileImage?<Image
+            source={{uri:userData.profileImage}} // Adjust the path as necessary
+            style={{
+              borderRadius: responsiveWidth(10),
+              borderWidth: responsiveWidth(.5),
+              borderColor: 'gray',
+              resizeMode: 'contain',
+              width: responsiveWidth(14), // Responsive width
+              height: responsiveWidth(14), // Maintain aspect ratio
+              marginRight: responsiveWidth(0)
+            }}
+          />:
           <Image
-            source={require('../assets/images/UserImage.png')} // Adjust the path as necessary
+            source={emptyProfile} // Adjust the path as necessary
             style={{
               borderRadius: responsiveWidth(10),
               borderWidth: responsiveWidth(.5),
@@ -289,6 +301,9 @@ const HomeScreen = ({ navigation }) => {
               marginRight: responsiveWidth(0)
             }}
           />
+        
+          }
+         
         </View>
 
         {/* <ScrollView style={{backgroundColor:"white",height:responsiveHeight(7),width:responsiveWidth(100)}}>
