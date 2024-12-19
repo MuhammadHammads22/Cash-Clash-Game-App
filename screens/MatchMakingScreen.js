@@ -87,7 +87,7 @@ const MatchMakingScreen = ({ route, navigation }) => {
     }
     if (game === 1) {
       if (type === 1) {
-        navigation.navigate('LudoOnline', { amount });
+        navigation.navigate('LudoOffline', { amount });
 
       }
       if (game === 2) {

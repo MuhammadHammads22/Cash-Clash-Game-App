@@ -1,200 +1,428 @@
-import { SafeAreaView, StyleSheet, View, Text } from 'react-native'
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { RootStackParamList } from '../navigation/AppNavigator'
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { Dimensions } from 'react-native'
-import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
-import { useRoute } from '@react-navigation/native'
-import { ThemeContext } from '../Themes/AppContext'
-import ChessBoard, { ChessboardRef } from 'react-native-chessboard';
-import { style } from 'twrnc'
-import { useDispatch, useSelector } from 'react-redux'
-import { setInitialFen, setMyTurn } from '../slices/matchSlice'
-import { PieceType } from 'react-native-chessboard/lib/typescript/types'
-import FullScreenModal from '../components/FullScreenModal'
-import { applyMoveToFEN, convertMoveToOpposite, extractAndConvertMove, extractMove, extractMoveForBlack, extractMoveForInvertedPerspective, extractMoveWithoutChessJS, mirrorFenState } from '../utils/chess'
+// PlayLocal.js
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
-  configureReanimatedLogger,
-  ReanimatedLogLevel,
-} from 'react-native-reanimated';
-import emptyProfile from'../assets/images/profileEmpty.jpg'
-import { Image } from 'react-native'
+  StyleSheet,
+  View,
+  Text,
+  Image,
+} from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { Dimensions } from 'react-native';
+import {
+  responsiveHeight,
+  responsiveWidth,
+} from 'react-native-responsive-dimensions';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useDispatch, useSelector } from 'react-redux';
+import ChessBoard, { ChessboardRef } from 'react-native-chessboard';
+import Toast from 'react-native-toast-message';
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 
-// This is the default configuration
+import { RootStackParamList } from '../navigation/AppNavigator';
+import { ThemeContext } from '../Themes/AppContext';
+import { setInitialFen, setMyTurn } from '../slices/matchSlice';
+import { PieceType } from 'react-native-chessboard/lib/typescript/types';
+import emptyProfile from '../assets/images/profileEmpty.jpg';
+import { getCapturedPieces } from '../utils/chess'; // Ensure this function is correctly implemented
+
+// Configure Reanimated Logger (if necessary)
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false, // Reanimated runs in strict mode by default
 });
-const Width = Dimensions.get('window').width
 
-type LocalGameProps = NativeStackScreenProps<RootStackParamList, 'LocalGame'>
+const Width = Dimensions.get('window').width;
+
+type LocalGameProps = NativeStackScreenProps<RootStackParamList, 'LocalGame'>;
 
 export interface ChessBoardPiece {
-  piece: string, pieceColor: string, row: number, column: number, isMoveValid?: boolean
+  piece: string;
+  pieceColor: string;
+  row: number;
+  column: number;
+  isMoveValid?: boolean;
 }
-
-
 
 const PlayLocal = ({ navigation }: LocalGameProps) => {
-  const route = useRoute().params
-  const dispatch = useDispatch()
+  const route = useRoute().params;
+  const dispatch = useDispatch();
+
+  // Select necessary state from Redux
   const { token, userData } = useSelector((state) => state.user);
-  const { matchId ,initialFen,player, isMyTurn, opponentInfo } = useSelector((state) => state.match)
-  const { socket, theme, toggleTheme } = useContext(ThemeContext)
+  const { 
+    matchId, 
+    initialFen, 
+    player, 
+    isMyTurn, 
+    opponentInfo,
+    game_over,
+    in_check,
+    in_checkmate,
+    in_draw,
+    in_promotion,
+    in_stalemate,
+    in_threefold_repetition,
+    insufficient_material 
+  } = useSelector((state) => state.match);
+  
+  const { socket, theme, toggleTheme } = useContext(ThemeContext);
+  
+  // State for captured pieces
+  const [blackCaptured, setBlackCaptured] = useState<string[]>([]);
+  const [whiteCaptured, setWhiteCaptured] = useState<string[]>([]);
+  const [gameOverState, setGameOverState] = useState(false);
+  
+  // Ref for the chessboard
+  const chessboardRef = useRef<ChessboardRef>(null);
+  
+  // State to store the starting FEN (game start position)
+  const [startingFen, setStartingFen] = useState<string>('');
 
-  const [gameOver, setGameOver] = useState(false)
-  const chessboardRef = React.useRef<ChessboardRef>(null)
- 
-
-
-
-
-
-
-
-
-
-
-
-  const move = (state) => {
-    // const {from,to} =  extractMove(initialFen,state.fen)
-
-    // console.log(from,to)
-    dispatch(setInitialFen(state.fen))
-    dispatch(setMyTurn(!isMyTurn))   
-    socket.emit("makeMove",{matchId,state,userData})
-    console.log("i am "+player+"  my turn "+isMyTurn+" maked a move")  
-  }
- 
-
-  // const opponentMove=async(from,to,chessRef)=>{
-  //   await chessRef.current?.move({ from: from , to: to })
-  // }
-
+  // Initialize startingFen once when the component mounts
   useEffect(() => {
-        socket.on('updateMove',async (state) => {
-          console.log("updateMove")
-          
-          // console.log(state.fen!==initialFen+'updatemove////////// '+state.fen)
-          if(!isMyTurn&&state.fen!==initialFen){
-console.log("hello")
-            if(state.in_promotion){
-              await chessboardRef.current.resetBoard(state.fen)
-            }
-      //  const s1=mirrorFenState(initialFen)
-      //  const s2=mirrorFenState(state.fen)
-      //  console.log('not reverted',state.fen)
+    if (!startingFen && initialFen) {
+      setStartingFen(initialFen);
+      console.log('Starting FEN set to:', initialFen);
+    }
+  }, [initialFen, startingFen]);
 
-      //  console.log('reverted',s2)
-          const {from,to}=(extractMoveWithoutChessJS(initialFen,state.fen))
-            console.log(from,to)
-      // await chessboardRef.current.resetBoard(state.fen)
+  // Function to handle move actions
+  const move = useCallback(
+    (state) => {
+      dispatch(setInitialFen(state.fen));
+      dispatch(setMyTurn(!isMyTurn));
+      const captured = getCapturedPieces(startingFen, state.fen);
+        console.log('Captured Pieces:', captured); // Debugging
+        setWhiteCaptured(captured.whiteCaptured);
+        setBlackCaptured(captured.blackCaptured);
+      socket.emit('makeMove', { matchId, state, userData });
+      console.log(
+        `I am ${player} - My turn: ${isMyTurn} - Made a move`
+      );
+    },
+    [dispatch, isMyTurn, matchId, player, socket, userData]
+  );
 
-        //  const updateFen= applyMoveToFEN(initialFen,from+to)
-        //  console.log(updateFen)
-        //  console.log('opponent moved from ',from+"to "+to)
-        //  opponentMove(from,to,chessboardRef)
-          await chessboardRef.current?.move({ from: from , to: to })
-          // await chessboardRef.current.resetBoard(s2)
-          //   // console.log('state : ',state.fen)
-          dispatch(setInitialFen(state.fen)) // Update FEN position
-          dispatch(setMyTurn(!isMyTurn))
-
-          }
-        })
-      return () => {
-        socket.off('chessStateUpdate')
+  // Function to render captured pieces as images
+  const renderCapturedPiecesImages = useCallback(
+    (capturedPieces: string[]) => {
+      if (!Array.isArray(capturedPieces)) {
+        console.warn('Captured pieces data is not an array:', capturedPieces);
+        return null;
       }
-  },[])
 
-  // Custom render piece function to rotate pieces based on player color
-  // const renderPiece = (piece: PieceType) => {
-  //   const rotation =  player=='black'? '180deg'  : '0deg';
-    
-  //   return (
-  //     <View style={{ transform: [{ rotate: rotation }] }}>
-  //       {piece}
-  //     </View>
-  //   )
-  // }
-  // <FullScreenModal isVisible={!isMyTurn}/>
+      const pieceImages: { [key: string]: any } = {
+        bq: require('../assets/images/bq.png'),
+        br: require('../assets/images/br.png'),
+        bn: require('../assets/images/bn.png'),
+        bb: require('../assets/images/bb.png'),
+        bk: require('../assets/images/bk.png'),
+        bp: require('../assets/images/bp.png'),
+        wq: require('../assets/images/wq.png'),
+        wr: require('../assets/images/wr.png'),
+        wn: require('../assets/images/wn.png'),
+        wb: require('../assets/images/wb.png'),
+        wk: require('../assets/images/wk.png'),
+        wp: require('../assets/images/wp.png'),
+      };
+      console.log('renderCapturedPiecesImages called with:', capturedPieces)
+      return capturedPieces.map((piece, index) => {
+        console.log("Rendering piece:", piece)
+        const imageSource = pieceImages[piece];
+        if (!imageSource) {
+          console.warn('No image found for piece:', piece);
+          return null;
+        }
+        return (
+          <View key={index} style={styles.capturedPieceContainer}>
+            <Image
+              source={imageSource}
+              style={styles.capturedPieceImage}
+            />
+          </View>
+        );
+      });
+    },
+    []
+  );
+
+  // Function to render each piece on the chessboard
+  const renderPiece = useCallback(
+    (piece: PieceType) => {
+      const pieceImages: { [key in PieceType]: any } = {
+        bq: require('../assets/images/bq.png'),
+        br: require('../assets/images/br.png'),
+        bn: require('../assets/images/bn.png'),
+        bb: require('../assets/images/bb.png'),
+        bk: require('../assets/images/bk.png'),
+        bp: require('../assets/images/bp.png'),
+        wq: require('../assets/images/wq.png'),
+        wr: require('../assets/images/wr.png'),
+        wn: require('../assets/images/wn.png'),
+        wb: require('../assets/images/wb.png'),
+        wk: require('../assets/images/wk.png'),
+        wp: require('../assets/images/wp.png'),
+      };
+      const imageSource = pieceImages[piece];
+      if (!imageSource) {
+        console.warn('No image found for piece:', piece);
+        return null;
+      }
+      return (
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: responsiveHeight(6.5),
+            height: responsiveHeight(6),
+          }}
+        >
+          <Image
+            style={{
+              width: responsiveHeight(6),
+              height: responsiveHeight(6),
+              transform: player === 'black' ? [{ rotateX: '180deg' }] : [],
+            }}
+            source={imageSource}
+          />
+        </View>
+      );
+    },
+    [player]
+  );
+
+  // Display Toast notification when the game starts
+  useEffect(() => {
+    if (startingFen) { // Ensure startingFen is set
+      const startingPlayer = player === 'white' ? 'You' : 'Opponent';
+      Toast.show({
+        type: 'info',
+        text1: 'Game Started',
+        text2: `${startingPlayer} will make the first move.`,
+        position: 'top',
+        visibilityTime: 4000,
+        autoHide: true,
+      });
+    }
+  }, [player, startingFen]);
+
+  // Listen for move updates from the socket
+  useEffect(() => {
+    const handleUpdateMove = async (state) => {
+      console.log('updateMove');
+      // console.log('myturn', isMyTurn);
+      // console.log('state is updated', state.fen !== initialFen);
+
+      if (!isMyTurn && state.fen !== initialFen) {
+        console.log('Received opponent move with FEN:', state.fen);
+        if (state.in_promotion) {
+          await chessboardRef.current?.resetBoard(state.fen);
+        }
+
+        await chessboardRef.current?.resetBoard(state.fen);
+
+        // Update FEN position and toggle turn
+        dispatch(setInitialFen(state.fen));
+        dispatch(setMyTurn(!isMyTurn));
+
+        // Update captured pieces by comparing startingFen and current Fen (state.fen)
+        const captured = getCapturedPieces(startingFen, state.fen);
+        console.log('Captured Pieces:', captured); // Debugging
+        setWhiteCaptured(captured.whiteCaptured);
+        setBlackCaptured(captured.blackCaptured);
+
+
+        // Handle game states
+        if (state.game_over) {
+          setGameOverState(true);
+          let result = 'Game Over';
+          if (state.in_checkmate) {
+            result = 'Checkmate!';
+          } else if (state.in_stalemate) {
+            result = 'Stalemate!';
+          } else if (state.in_draw) {
+            result = 'Draw!';
+          } else if (state.insufficient_material) {
+            result = 'Insufficient Material!';
+          } else if (state.in_threefold_repetition) {
+            result = 'Threefold Repetition!';
+          }
+          Toast.show({
+            type: 'success',
+            text1: 'Game Over',
+            text2: result,
+            position: 'top',
+            visibilityTime: 4000,
+            autoHide: true,
+          });
+        } else {
+          if (state.in_check) {
+            Toast.show({
+              type: 'info',
+              text1: 'Check',
+              text2: `${player === 'white' ? 'white' : 'black'} is in check.`,
+              position: 'top',
+              visibilityTime: 3000,
+              autoHide: true,
+            });
+          }
+
+          // Handle other non-game-over states
+          if (state.in_promotion) {
+            Toast.show({
+              type: 'info',
+              text1: 'Promotion',
+              text2: 'A pawn has been promoted.',
+              position: 'top',
+              visibilityTime: 3000,
+              autoHide: true,
+            });
+          }
+
+          if (state.in_stalemate) {
+            Toast.show({
+              type: 'info',
+              text1: 'Stalemate',
+              text2: 'The game has ended in a stalemate.',
+              position: 'top',
+              visibilityTime: 3000,
+              autoHide: true,
+            });
+          }
+
+          if (state.in_draw) {
+            Toast.show({
+              type: 'info',
+              text1: 'Draw',
+              text2: 'The game has ended in a draw.',
+              position: 'top',
+              visibilityTime: 3000,
+              autoHide: true,
+            });
+          }
+
+          if (state.in_threefold_repetition) {
+            Toast.show({
+              type: 'info',
+              text1: 'Threefold Repetition',
+              text2: 'The game has been drawn by threefold repetition.',
+              position: 'top',
+              visibilityTime: 3000,
+              autoHide: true,
+            });
+          }
+
+          if (state.insufficient_material) {
+            Toast.show({
+              type: 'info',
+              text1: 'Insufficient Material',
+              text2: 'The game has ended due to insufficient material.',
+              position: 'top',
+              visibilityTime: 3000,
+              autoHide: true,
+            });
+          }
+        }
+      }
+    };
+
+    socket.on('updateMove', handleUpdateMove);
+
+    return () => {
+      socket.off('updateMove', handleUpdateMove);
+    };
+  }, [isMyTurn, initialFen, dispatch, socket, startingFen, player]);
+
+  // Memoize the rendered captured pieces to prevent unnecessary re-renders
+  const renderedWhiteCaptured = useMemo(
+    () => renderCapturedPiecesImages(whiteCaptured),
+    [whiteCaptured, renderCapturedPiecesImages]
+  );
+
+  const renderedBlackCaptured = useMemo(
+    () => renderCapturedPiecesImages(blackCaptured),
+    [blackCaptured, renderCapturedPiecesImages]
+  );
 
   return (
-    <View style={[styles.chessboardContainer,{transform: player=='black'?[{ rotateX:'0deg'}]:[]}]}>
-    <View style={{justifyContent:'flex-start',width:responsiveWidth(100),height:responsiveHeight(10),flexDirection:'row',alignItems:'center'}}>
-    <Image
-    source={opponentInfo.profileImage?{uri:opponentInfo.profileImage} : emptyProfile} 
-    style={{
-      borderRadius: responsiveWidth(10),
-      borderWidth: responsiveWidth(.5),
-      borderColor: 'gray',
-      resizeMode: 'contain',
-      width: responsiveWidth(14), // Responsive width
-      height: responsiveWidth(14), // Maintain aspect ratio
-      marginRight: responsiveWidth(0)
-    }}
-  />
-    <Text>{opponentInfo.name }</Text>
-    </View>
-    <View     style={{transform: player=='black'?[{ rotateX:'180deg'}]:[]}}>
-    <ChessBoard
-        enabled={!isMyTurn}
-        ref={chessboardRef}
-        fen={initialFen}
-        boardSize={responsiveHeight(55)}
-        renderPiece={(piece)=>{
-          const pieceImages: { [key in PieceType]: string } = {
-            bq:  require('../assets/images/bq.png'),
-            br:  require('../assets/images/br.png'),
-            bn:  require('../assets/images/bn.png'),
-            bb:  require('../assets/images/bb.png'),
-            bk: require('../assets/images/bk.png'),
-            bp:  require('../assets/images/bp.png'),
-            wq:  require('../assets/images/wq.png'),
-            wr:  require('../assets/images/wr.png'),
-            wn:  require('../assets/images/wn.png'),
-            wb:  require('../assets/images/wb.png'),
-            wk:  require('../assets/images/wk.png'),
-            wp:  require('../assets/images/wp.png'),
-          };
-          const imageSource = pieceImages[piece];
-          if (!imageSource) {
-            return null;
+    <View style={styles.chessboardContainer}>
+      {/* Opponent's Profile */}
+      <View style={styles.profileContainer}>
+        <Image
+          source={
+            opponentInfo.profileImage
+              ? { uri: opponentInfo.profileImage }
+              : emptyProfile
           }
-         return(
-          <View style={{flex:1,alignItems:'center',justifyContent:'center',width:responsiveHeight(6.5),height:responsiveHeight(6)}}>
-          <Image style={{width:responsiveHeight(6),height:responsiveHeight(6),transform: player=='black'?[{ rotateX:'-180deg'}]:[] }} source={imageSource}/>
-        </View> 
-        )
-        }}
-        gestureEnabled={true}
-        onMove={({ state }) => {
-          // console.log(state)  // Join the rows back together with "/"
-          if(isMyTurn){
-          console.log(state)
-          move(state) // Emit the move to the opponent
-          }
-        }}
-      />
+          style={styles.profileImage}
+        />
+        <View style={styles.profileDetails}>
+          <Text style={styles.profileName}>{opponentInfo.name}</Text>
+          {/* Captured Pieces */}
+          <View style={styles.capturedPiecesContainer}>
+            {player === 'black'
+              ? renderedBlackCaptured
+              : renderedWhiteCaptured}
+          </View>
+        </View>
       </View>
-      <View style={{width:responsiveWidth(100),height:responsiveHeight(10),flexDirection:'row',justifyContent:'flex-start',alignItems:'center'}}>
-      <Image
-      source={userData.profileImage?{uri:userData.profileImage} : emptyProfile } 
-      style={{
-        borderRadius: responsiveWidth(10),
-        borderWidth: responsiveWidth(.5),
-        borderColor: 'gray',
-        resizeMode: 'contain',
-        width: responsiveWidth(14), // Responsive width
-        height: responsiveWidth(14), // Maintain aspect ratio
-        marginRight: responsiveWidth(0)
-      }}
-    />
-    <Text>{ userData.name}</Text>
+
+      {/* Chess Board */}
+      <View
+        style={{
+          transform:
+            player === 'black' ? [{ rotateX: '180deg' }] : [],
+          marginVertical: responsiveHeight(2),
+        }}
+      >
+        <ChessBoard
+          enabled={!isMyTurn}
+          ref={chessboardRef}
+          fen={initialFen}
+          boardSize={responsiveHeight(55)}
+          renderPiece={renderPiece}
+          gestureEnabled={isMyTurn}
+          onMove={({ state }) => {
+            if (isMyTurn) {
+              console.log('User move:', state);
+              move(state);
+            }
+          }}
+        />
+      </View>
+
+      {/* User's Profile */}
+      <View style={styles.profileContainer}>
+        <Image
+          source={
+            userData.profileImage
+              ? { uri: userData.profileImage }
+              : emptyProfile
+          }
+          style={styles.profileImage}
+        />
+        <View style={styles.profileDetails}>
+          <Text style={styles.profileName}>{userData.name}</Text>
+          {/* Captured Pieces */}
+          <View style={styles.capturedPiecesContainer}>
+            {player === 'white'
+              ? renderedBlackCaptured
+              : renderedWhiteCaptured}
+          </View>
+        </View>
+      </View>
+      {/* Toast Component is already included in App.js */}
     </View>
-    </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   chessboardContainer: {
@@ -202,10 +430,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'white',
-    zIndex: 20
+    zIndex: 20,
+    paddingTop: responsiveHeight(2),
+    paddingBottom: responsiveHeight(2),
+  },
+  profileContainer: {
+    justifyContent: 'flex-start',
+    width: responsiveWidth(100),
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: responsiveWidth(5),
+    marginVertical: responsiveHeight(1),
+  },
+  profileImage: {
+    borderRadius: responsiveWidth(10),
+    borderWidth: responsiveWidth(0.5),
+    borderColor: 'gray',
+    resizeMode: 'contain',
+    width: responsiveWidth(14),
+    height: responsiveWidth(14),
+    marginRight: responsiveWidth(2),
+  },
+  profileDetails: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  profileName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: responsiveHeight(0.5),
+  },
+  capturedPiecesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  capturedPieceContainer: {
+    width: 24,
+    height: 24,
+    marginRight: 4,
+    marginTop: 2,
+  },
+  capturedPieceImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   flippedBoard: {
-    transform: [{ rotateX:'180deg'}] // Rotate 180° for black
+    transform: [{ rotateX: '180deg' }], // Rotate 180° for black
   },
   container: {
     flex: 1,
@@ -252,7 +524,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000'
+    color: '#000',
   },
   playerCardContainer: {
     flex: 1,
@@ -281,8 +553,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     paddingHorizontal: 8,
     flexWrap: 'wrap',
-    alignSelf: 'center'
-  }
-})
+    alignSelf: 'center',
+  },
+});
 
-export default PlayLocal
+export default PlayLocal;

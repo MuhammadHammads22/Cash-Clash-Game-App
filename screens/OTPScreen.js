@@ -27,11 +27,19 @@ const OTPScreen = ({ navigation,route}) => {
                 
             })
             .then((data) => {
+                console.log(data)
                 if(data.success){
+                    if(route.params.type=="forgot password"){
+                    Alert.alert('',data.message)
+                    navigation.navigate('ResetPassword',{email:route.params.email})
+                    console.log(data)
+                    }
+                    else{
                     Alert.alert('',data.message)
                     navigation.navigate('Login')
                     console.log(data)
                   }
+                }
                   else{
                     Alert.alert('Verification Failed', data.message)
                     console.log(data)

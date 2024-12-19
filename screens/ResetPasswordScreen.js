@@ -26,7 +26,7 @@ import LoginModal from '../components/Modal';
 import { url } from '../store/urls';
 import * as Progress from 'react-native-progress';
 
-const ResetPasswordScreen = () => {
+const ResetPasswordScreen = ({route}) => {
   const navigation = useNavigation();
   const { width, height } = useWindowDimensions();
   const [name, setName] = useState('');
@@ -55,26 +55,34 @@ const ResetPasswordScreen = () => {
   const [isErrorServer, setIsErrorServer] = useState(false)
   const [errorServer, setErrorServer] = useState("")
 
-  const isButtonDisabled = !name.trim() ||isErrorName|| !email.trim()||isErrorEmail || !selectedGender.trim()||isErrorGender || !password.trim()||isErrorPassword || !confirmPassword.trim()||isErrorConfirmPassword;
+  const isButtonDisabled =  !password.trim()||isErrorPassword || !confirmPassword.trim()||isErrorConfirmPassword;
 
   const handleRegister =async () => {
     // Placeholder registration logic
+    console.log(password,confirmPassword)
     setIsLoading(true)
-    await fetch(`${url}auth/register`, {
+    await fetch(`${url}auth/resetPassword`, {
       method: 'POST', // Correct HTTP method, use uppercase "POST"
       headers: {
         'Content-Type': 'application/json', // Tell the server that you're sending JSON
       },
       body: JSON.stringify({
-        name: name,
-        email: email,
-        gender: selectedGender.toLowerCase(),
+        email: route.params.email,
         password: password,
         confirmPassword: confirmPassword
       }),
     })
       .then((res) => res.json()) // Parse the response as JSON
       .then((data) => {
+        console.log(data)
+        if(data.success){
+                  Alert.alert('',data.message)
+                  navigation.navigate('Login')
+                }
+                else{
+                  Alert.alert('Failed', data.message)
+                  console.log(data)
+                }
         setIsLoading(false)
         console.log(data); // Handle the data received from the server
       })
@@ -132,87 +140,8 @@ const ResetPasswordScreen = () => {
             ...tw`text-white text-3xl font-bold mb-6 text-center`,
             fontSize: width * 0.07, // Responsive font size
           }}>
-            Create Account
+            Reset Password
           </Text>
-          <Text style={{
-            ...tw`text-gray-400 text-base mb-6 text-center`,
-            fontSize: width * 0.04, // Responsive font size
-          }}>
-            Create an account to enjoy the games and new features only on 1xWin.
-          </Text>
-
-          {/* Full Name Input */}
-          <View style={{
-            ...tw`flex-row items-center bg-gray-800 rounded-lg px-4`,
-            height: inputHeight,
-          }}>
-            <Ionicons name="person-outline" size={iconSize} color="#aaa" style={tw`mr-2`} />
-            <TextInput
-              style={{
-                ...tw`flex-1 text-white`,
-                fontSize: width * 0.045, // Responsive font size
-              }}
-              placeholder="Name"
-              placeholderTextColor="#aaa"
-              autoCapitalize="words"
-              value={name}
-              onBlur={()=>{validateField(name,'name',setErrorName,setIsErrorName)}}
-              onChangeText={setName}
-            />
-          </View>
-          <View style={{ marginVertical: responsiveHeight(1),marginLeft:responsiveWidth(2), alignItems: 'flex-start' }}>
-                {isErrorName ? (<Text style={{ color: 'red' }}>*{errorName}</Text>) : (<Text></Text>)}
-          </View>
-
-               {/* gender */}
-          {/* <View style={{
-            ...tw`flex-row items-center bg-gray-800 rounded-lg px-4`,
-            height: inputHeight,
-          }}>
-            <Ionicons name="mail-outline" size={iconSize} color="#aaa" style={tw`mr-2`} />
-            <TextInput
-              style={{
-                ...tw`flex-1 text-white`,
-                fontSize: width * 0.045, // Responsive font size
-              }}
-              placeholder="Gender"
-              placeholderTextColor="#aaa"
-              keyboardType="Gender"
-              autoCapitalize="none"
-              value={gender}
-              onChangeText={setGender}
-            />
-          </View> */}
-          <GenderSelection selectedGender={selectedGender} setSelectedGender={setSelectedGender}/>
-          <View style={{ marginVertical: responsiveHeight(1),marginLeft:responsiveWidth(2), alignItems: 'flex-start' }}>
-                {isErrorGender ? (<Text style={{ color: 'red' }}>*{errorGender}</Text>) : (<Text></Text>)}
-          </View>
-
-          {/* Email Input */}
-          <View style={{
-            ...tw`flex-row items-center bg-gray-800 rounded-lg px-4`,
-            height: inputHeight,
-          }}>
-            <Ionicons name="mail-outline" size={iconSize} color="#aaa" style={tw`mr-2`} />
-            <TextInput
-            onSubmitEditing={()=>{validateField(email,'email',setErrorEmail,setIsErrorEmail)}}
-              style={{
-                ...tw`flex-1 text-white`,
-                fontSize: width * 0.045, // Responsive font size
-              }}
-              placeholder="Email"
-              placeholderTextColor="#aaa"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-            />
-          </View>
-          <View style={{ marginVertical: responsiveHeight(1),marginLeft:responsiveWidth(2), alignItems: 'flex-start' }}>
-                {isErrorEmail ? (<Text style={{ color: 'red' }}>*{errorEmail}</Text>) : (<Text></Text>)}
-          </View>
-      
-         
 
           {/* Password Input */}
           <View style={{

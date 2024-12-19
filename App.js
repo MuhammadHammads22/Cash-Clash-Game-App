@@ -8,6 +8,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from './store/store';
 import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 export default function App() {
   // SplashScreen.preventAutoHideAsync();
@@ -28,6 +29,7 @@ export default function App() {
       <ThemeProvider>
       <GestureHandlerRootView style={{ flex: 1 }} enable={false}>
         <AppNavigator />
+        <Toast  />
       </GestureHandlerRootView>
     </ThemeProvider>
     </PersistGate>

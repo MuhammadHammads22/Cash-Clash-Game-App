@@ -57,7 +57,8 @@ const EmailVerificationScreen = () => {
         setIsLoading(false)
         
         if(data.success){
-         navigation.navigate('OTP')
+          Alert.alert('Success',data.message)
+         navigation.navigate('OTP',{type:'email verification',email:email})
         }
         else{
           setErrorServer(data.message)

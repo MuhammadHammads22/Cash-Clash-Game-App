@@ -1,54 +1,73 @@
-export function getCapturedPieces(fen) {
-  // Initial piece counts in a standard chess game
-  const initialCounts = {
-      'K': 1, 'Q': 1, 'R': 2, 'B': 2, 'N': 2, 'P': 8,
-      'k': 1, 'q': 1, 'r': 2, 'b': 2, 'n': 2, 'p': 8
+ import {Text, View } from 'react-native'
+// ../utils/chess.js or ../utils/chess.ts
+
+// ../utils/chess.js or chess.ts
+
+/**
+ * Parses a FEN string and returns the count of each piece for white and black.
+ * @param {string} fen - The FEN string representing the current board state.
+ * @returns {object} An object containing counts of each piece for white and black.
+ */
+const countPieces = (fen) => {
+  const piecePlacement = fen.split(' ')[0];
+  const counts = {
+    white: { p: 0, r: 0, n: 0, b: 0, q: 0, k: 0 },
+    black: { p: 0, r: 0, n: 0, b: 0, q: 0, k: 0 },
   };
+  
+  for (const char of piecePlacement) {
+    if (char === '/') continue;
+    if (/[1-8]/.test(char)) {
+      continue; // skip empty squares
+    }
+    const isWhite = /[A-Z]/.test(char);
+    const piece = char.toLowerCase();
+    if (isWhite && counts.white[piece] !== undefined) {
+      counts.white[piece]++;
+    } else if (!isWhite && counts.black[piece] !== undefined) {
+      counts.black[piece]++;
+    }
+  }
+  
+  return counts;
+};
 
-  // Parse the board part of the FEN string (before the first space)
-  const boardPart = fen.split(' ')[0];
-  const ranks = boardPart.split('/');
-
-  // Current counts of pieces on the board
-  const currentCounts = {
-      'K': 0, 'Q': 0, 'R': 0, 'B': 0, 'N': 0, 'P': 0,
-      'k': 0, 'q': 0, 'r': 0, 'b': 0, 'n': 0, 'p': 0
-  };
-
-  // Parse each rank in the FEN
-  for (const rank of ranks) {
-      for (const ch of rank) {
-          if (!isNaN(ch)) {
-              // Digit indicates empty squares, so we skip
-              continue;
-          } else {
-              // It's a piece character
-              if (currentCounts.hasOwnProperty(ch)) {
-                  currentCounts[ch]++;
-              }
-          }
-      }
+/**
+ * Determines the captured pieces by comparing initial and current FEN strings.
+ * @param {string} initialFen - The initial FEN string at the start of the game.
+ * @param {string} currentFen - The current FEN string after moves.
+ * @returns {object} An object containing arrays of captured pieces for white and black.
+ */
+export const getCapturedPieces = (initialFen, currentFen) => {
+  if (!initialFen || !currentFen) {
+    console.warn('Initial FEN or Current FEN is undefined');
+    return { whiteCaptured: [], blackCaptured: [] };
   }
 
-  // Determine captured pieces by comparing currentCounts with initialCounts
-  const captured = {};
-  for (const piece in initialCounts) {
-      const diff = initialCounts[piece] - currentCounts[piece];
-      if (diff > 0) {
-          captured[piece] = diff;
-      }
+  const initialCounts = countPieces(initialFen);
+  const currentCounts = countPieces(currentFen);
+  
+  // Calculate captured pieces for white and black
+  const whiteCaptured = [];
+  const blackCaptured = [];
+  
+  for (const piece in initialCounts.white) {
+    const captured = initialCounts.white[piece] - (currentCounts.white[piece] || 0);
+    for (let i = 0; i < captured; i++) {
+      whiteCaptured.push(`w${piece}`);
+    }
   }
 
-  return captured;
-}
+  for (const piece in initialCounts.black) {
+    const captured = initialCounts.black[piece] - (currentCounts.black[piece] || 0);
+    for (let i = 0; i < captured; i++) {
+      blackCaptured.push(`b${piece}`);
+    }
+  }
 
-// Example usage:
-const fen = "r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5";
-// console.log(getCapturedPieces(fen));
-// This will output an object showing which pieces have been captured relative to the starting position.
- 
-
-
+  console.log('Captured Pieces:', { whiteCaptured, blackCaptured });
+  return { whiteCaptured, blackCaptured };
+};
 
 
 
