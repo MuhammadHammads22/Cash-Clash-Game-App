@@ -29,7 +29,7 @@ export const validateField = (value, field, setError, setIsError,password='') =>
         break;
       case 'name':
         // Check name validity (can be adjusted as needed)
-        const nameRegex = /^[A-Za-z0-9_]+$/; // Allows alphabets, numbers, and underscores
+        const nameRegex = /^[A-Za-z0-9_ ]+$/; // Allows alphabets, numbers, and underscores
         if (!nameRegex.test(value)) {
           errorMessage = 'Name should only contain letters and spaces.';
           isValid = false;

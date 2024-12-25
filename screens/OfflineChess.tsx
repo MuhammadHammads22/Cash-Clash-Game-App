@@ -12,6 +12,9 @@ import {
   View,
   Text,
   Image,
+  Animated,
+  Modal,
+  Alert,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
@@ -27,16 +30,12 @@ import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-rean
 
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { ThemeContext } from '../Themes/AppContext';
-import { setInitialFen, setMyTurn } from '../slices/matchSlice';
+import { setGameEnd, setGameOver, setInCheckmate, setInitialFen, setMyTurn, setWon } from '../slices/matchSlice';
 import { PieceType } from 'react-native-chessboard/lib/typescript/types';
 import emptyProfile from '../assets/images/profileEmpty.jpg';
 import { getCapturedPieces } from '../utils/chess'; // Ensure this function is correctly implemented
 
-// Configure Reanimated Logger (if necessary)
-configureReanimatedLogger({
-  level: ReanimatedLogLevel.warn,
-  strict: false, // Reanimated runs in strict mode by default
-});
+
 
 const Width = Dimensions.get('window').width;
 
@@ -53,6 +52,8 @@ export interface ChessBoardPiece {
 const PlayLocal = ({ navigation }: LocalGameProps) => {
   const route = useRoute().params;
   const dispatch = useDispatch();
+ 
+  
 
   // Select necessary state from Redux
   const { token, userData } = useSelector((state) => state.user);
@@ -62,6 +63,7 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
     player, 
     isMyTurn, 
     opponentInfo,
+    won,
     game_over,
     in_check,
     in_checkmate,
@@ -69,7 +71,8 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
     in_promotion,
     in_stalemate,
     in_threefold_repetition,
-    insufficient_material 
+    insufficient_material ,
+    gameEnd
   } = useSelector((state) => state.match);
   
   const { socket, theme, toggleTheme } = useContext(ThemeContext);
@@ -78,7 +81,10 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
   const [blackCaptured, setBlackCaptured] = useState<string[]>([]);
   const [whiteCaptured, setWhiteCaptured] = useState<string[]>([]);
   const [gameOverState, setGameOverState] = useState(false);
-  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
+  const animationValue = useRef(new Animated.Value(0)).current;
   // Ref for the chessboard
   const chessboardRef = useRef<ChessboardRef>(null);
   
@@ -97,7 +103,7 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
   const move = useCallback(
     (state) => {
       dispatch(setInitialFen(state.fen));
-      dispatch(setMyTurn(!isMyTurn));
+      
       const captured = getCapturedPieces(startingFen, state.fen);
         console.log('Captured Pieces:', captured); // Debugging
         setWhiteCaptured(captured.whiteCaptured);
@@ -106,6 +112,45 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
       console.log(
         `I am ${player} - My turn: ${isMyTurn} - Made a move`
       );
+      if (state.game_over) {
+        let result = 'Game Over';
+        if (state.in_checkmate) {
+          result = 'Checkmate!';
+          dispatch(setWon(true))
+          dispatch(setGameEnd(true))
+          navigation.goBack()
+          // Alert.alert('',"you won")
+          return
+        } else if (state.in_stalemate) {
+          result = 'Stalemate!';
+          dispatch(setGameOver(true))
+          dispatch(setGameEnd(true))
+          navigation.goBack()
+          // Alert.alert('',"Game Draw")
+          return
+        } else if (state.in_draw) {
+          result = 'Draw!';
+          dispatch(setGameOver(true))
+          dispatch(setGameEnd(true))
+          // Alert.alert('',"Game Draw")
+          return
+        } else if (state.insufficient_material) {
+          result = 'Insufficient Material!';
+          Alert.alert('',"Insufficient Material!")
+        } else if (state.in_threefold_repetition) {
+          result = 'Threefold Repetition!';
+          Alert.alert('',"Threefold Repetition!")
+        }
+        // showAnimatedModal(result);
+      } else if (state.in_check) {
+        // showAnimatedModal(`${player === 'white' ? 'White' : 'Black'} is in check.`);
+        dispatch(setWon(true))
+          dispatch(setGameEnd(true))
+          navigation.goBack()
+        // Alert.alert('',"you won")
+        return
+      }
+      dispatch(setMyTurn(!isMyTurn));
     },
     [dispatch, isMyTurn, matchId, player, socket, userData]
   );
@@ -199,20 +244,7 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
     [player]
   );
 
-  // Display Toast notification when the game starts
-  useEffect(() => {
-    if (startingFen) { // Ensure startingFen is set
-      const startingPlayer = player === 'white' ? 'You' : 'Opponent';
-      Toast.show({
-        type: 'info',
-        text1: 'Game Started',
-        text2: `${startingPlayer} will make the first move.`,
-        position: 'top',
-        visibilityTime: 4000,
-        autoHide: true,
-      });
-    }
-  }, [player, startingFen]);
+
 
   // Listen for move updates from the socket
   useEffect(() => {
@@ -223,15 +255,12 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
 
       if (!isMyTurn && state.fen !== initialFen) {
         console.log('Received opponent move with FEN:', state.fen);
-        if (state.in_promotion) {
-          await chessboardRef.current?.resetBoard(state.fen);
-        }
 
         await chessboardRef.current?.resetBoard(state.fen);
 
         // Update FEN position and toggle turn
         dispatch(setInitialFen(state.fen));
-        dispatch(setMyTurn(!isMyTurn));
+        
 
         // Update captured pieces by comparing startingFen and current Fen (state.fen)
         const captured = getCapturedPieces(startingFen, state.fen);
@@ -240,97 +269,43 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
         setBlackCaptured(captured.blackCaptured);
 
 
-        // Handle game states
+      
         if (state.game_over) {
-          setGameOverState(true);
           let result = 'Game Over';
           if (state.in_checkmate) {
             result = 'Checkmate!';
+            dispatch(setInCheckmate(true))
+            dispatch(setGameEnd(true))
+            // Alert.alert('',"you lose")
+            navigation.goBack()
+            return
           } else if (state.in_stalemate) {
             result = 'Stalemate!';
+          dispatch(setGameOver(true))
+          dispatch(setGameEnd(true))
+            // Alert.alert('',"Game Draw")
+            return
           } else if (state.in_draw) {
             result = 'Draw!';
+          dispatch(setGameOver(true))
+          dispatch(setGameEnd(true))
+          // Alert.alert('',"Game Draw")
+            return
           } else if (state.insufficient_material) {
             result = 'Insufficient Material!';
+            Alert.alert('',"Insufficient Material!")
           } else if (state.in_threefold_repetition) {
             result = 'Threefold Repetition!';
+            Alert.alert('',"Threefold Repetition!")
           }
-          Toast.show({
-            type: 'success',
-            text1: 'Game Over',
-            text2: result,
-            position: 'top',
-            visibilityTime: 4000,
-            autoHide: true,
-          });
-        } else {
-          if (state.in_check) {
-            Toast.show({
-              type: 'info',
-              text1: 'Check',
-              text2: `${player === 'white' ? 'white' : 'black'} is in check.`,
-              position: 'top',
-              visibilityTime: 3000,
-              autoHide: true,
-            });
-          }
-
-          // Handle other non-game-over states
-          if (state.in_promotion) {
-            Toast.show({
-              type: 'info',
-              text1: 'Promotion',
-              text2: 'A pawn has been promoted.',
-              position: 'top',
-              visibilityTime: 3000,
-              autoHide: true,
-            });
-          }
-
-          if (state.in_stalemate) {
-            Toast.show({
-              type: 'info',
-              text1: 'Stalemate',
-              text2: 'The game has ended in a stalemate.',
-              position: 'top',
-              visibilityTime: 3000,
-              autoHide: true,
-            });
-          }
-
-          if (state.in_draw) {
-            Toast.show({
-              type: 'info',
-              text1: 'Draw',
-              text2: 'The game has ended in a draw.',
-              position: 'top',
-              visibilityTime: 3000,
-              autoHide: true,
-            });
-          }
-
-          if (state.in_threefold_repetition) {
-            Toast.show({
-              type: 'info',
-              text1: 'Threefold Repetition',
-              text2: 'The game has been drawn by threefold repetition.',
-              position: 'top',
-              visibilityTime: 3000,
-              autoHide: true,
-            });
-          }
-
-          if (state.insufficient_material) {
-            Toast.show({
-              type: 'info',
-              text1: 'Insufficient Material',
-              text2: 'The game has ended due to insufficient material.',
-              position: 'top',
-              visibilityTime: 3000,
-              autoHide: true,
-            });
-          }
+          // showAnimatedModal(result);
+        } else if (state.in_check) {
+          // showAnimatedModal(`${player === 'white' ? 'White' : 'Black'} is in check.`);
+          Alert.alert('',"you lose")
+          dispatch(setInCheckmate(true))
+          return
         }
+        dispatch(setMyTurn(!isMyTurn)); 
       }
     };
 
@@ -340,6 +315,26 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
       socket.off('updateMove', handleUpdateMove);
     };
   }, [isMyTurn, initialFen, dispatch, socket, startingFen, player]);
+
+
+  // const showAnimatedModal = (message) => {
+  //   console.log(message)
+  //   setModalMessage(message);
+  //   setModalVisible(true);
+  //   Animated.timing(animationValue, {
+  //     toValue: 1,
+  //     duration: 1000,
+  //     useNativeDriver: true,
+  //   }).start(() => {
+  //     setTimeout(() => {
+  //       Animated.timing(animationValue, {
+  //         toValue: 0,
+  //         duration: 500,
+  //         useNativeDriver: true,
+  //       }).start(() => setModalVisible(false));
+  //     }, 3000);
+  //   });
+  // };
 
   // Memoize the rendered captured pieces to prevent unnecessary re-renders
   const renderedWhiteCaptured = useMemo(
@@ -354,6 +349,36 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
 
   return (
     <View style={styles.chessboardContainer}>
+
+    <Modal
+    visible={modalVisible}
+    transparent
+    animationType="fade"
+    styles={{flex:1,justifyContent:'center',alignItems:'center'}}
+  >
+    <View style={styles.modalContainer}>
+      <Animated.View
+        style={[
+          styles.animatedModal,
+          {
+            opacity: animationValue,
+            transform: [
+              {
+                scale: animationValue.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.5, 1],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        <Text style={styles.modalText}>Threefold Repetition! The game has been drawn.</Text>
+      </Animated.View>
+    </View>
+  </Modal>
+
+
       {/* Opponent's Profile */}
       <View style={styles.profileContainer}>
         <Image
@@ -362,7 +387,14 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
               ? { uri: opponentInfo.profileImage }
               : emptyProfile
           }
-          style={styles.profileImage}
+          style={{
+            borderRadius: responsiveWidth(10),
+            borderWidth: responsiveWidth(0.5),
+            resizeMode: 'contain',
+            width: responsiveWidth(14),
+            height: responsiveWidth(14),
+            marginRight: responsiveWidth(2),
+          borderColor:isMyTurn?'gray':'orange'}}
         />
         <View style={styles.profileDetails}>
           <Text style={styles.profileName}>{opponentInfo.name}</Text>
@@ -407,7 +439,14 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
               ? { uri: userData.profileImage }
               : emptyProfile
           }
-          style={styles.profileImage}
+          style={{
+            borderRadius: responsiveWidth(10),
+            borderWidth: responsiveWidth(0.5),
+            resizeMode: 'contain',
+            width: responsiveWidth(14),
+            height: responsiveWidth(14),
+            marginRight: responsiveWidth(2),
+          borderColor:isMyTurn?'orange':'gray'}}
         />
         <View style={styles.profileDetails}>
           <Text style={styles.profileName}>{userData.name}</Text>
@@ -555,6 +594,24 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignSelf: 'center',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  animatedModal: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalText: {
+    fontSize: 20,
+  }
 });
 
 export default PlayLocal;

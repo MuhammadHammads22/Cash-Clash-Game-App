@@ -74,7 +74,6 @@ const HomeScreen = ({ navigation }) => {
       setSelectedGame(viewableItems[0].index);
     }
   }).current;
-
   const nowPlayGame = () => {
     // console.log(gameTier + ",  " + selectedGame + ", " + selectedGameOption)
     if (selectedGame === 0) {
@@ -244,7 +243,7 @@ const HomeScreen = ({ navigation }) => {
                 })
               }
             </View>
-            <TouchableOpacity disabled={!gameTier} onPress={nowPlayGame} style={{ alignSelf: 'center', marginVertical: responsiveHeight(2), width: responsiveWidth(70), backgroundColor: 'black', padding: responsiveWidth(2), borderRadius: responsiveWidth(4), alignItems: 'center', justifyContent: 'center' }}>
+            <TouchableOpacity disabled={!(gameTier<=userData.coins)} onPress={nowPlayGame} style={{ alignSelf: 'center', marginVertical: responsiveHeight(2), width: responsiveWidth(70),opacity:gameTier<=userData.coins?1:.5, backgroundColor: 'black', padding: responsiveWidth(2), borderRadius: responsiveWidth(4), alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ fontSize: responsiveWidth(4), fontWeight: 'bold', color: 'white' }}> Start</Text>
             </TouchableOpacity>
           </View>

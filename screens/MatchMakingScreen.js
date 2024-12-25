@@ -9,7 +9,9 @@ import coinIcon from '../assets/images/coinIcon.png'
 import { io } from 'socket.io-client';
 import { ThemeContext } from '../Themes/AppContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { setInitialFen, setMatchId, setMyTurn, setOpponentInfo, setPlayer } from '../slices/matchSlice';
+import { clearMatchData, setInitialFen, setMatchId, setMyTurn, setOpponentInfo, setPlayer } from '../slices/matchSlice';
+import { deductMatchFees, setCoins } from '../slices/userSlice';
+import LottieView from 'lottie-react-native';
 
 
 
@@ -24,50 +26,59 @@ const MatchMakingScreen = ({ route, navigation }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const { socket, theme, toggleTheme } = useContext(ThemeContext);
   const { token, userData } = useSelector((state) => state.user);
-  const { matchId ,initialFen,player, isMyTurn, opponentInfo } = useSelector((state) => state.match)
+  const { matchId, initialFen, player, isMyTurn, opponentInfo,gameEnd , won, in_checkmate, in_drawm, in_promotion, in_stalemate, in_threefold_repetition } = useSelector((state) => state.match)
   const dispatch = useDispatch()
 
-  
 
+// console.log(route.params)
 
   useEffect(() => {
+    console.log(matchId)
     async function start() {
+      
       // setSocket(newSocket);
       socket.emit("playGame", { gameInfo: route.params, userInfo: userData })
       // Listen for events from the server
       socket.on('matchMake', (data) => {
-        // console.log(data)
+        console.log(data)
         let playerColor = null;
         if (data.playerBlack.userInfo.uniqueId === userData.uniqueId) {
           playerColor = 'black';
-
         } else if (data.playerWhite.userInfo.uniqueId === userData.uniqueId) {
           playerColor = 'white';
         }
         dispatch(setPlayer(playerColor))
         dispatch(setMatchId(data.matchId))
+        dispatch(setCoins(-data.gameInfo.amount))
         // Determine if it's the player's turn
         const isMyTurn = data.startingPlayer == playerColor;
-        
-        if(playerColor=='black'){
+
+        if (playerColor == 'black') {
           dispatch(setOpponentInfo(data.playerWhite.userInfo))
-        }else{
+        } else {
           dispatch(setOpponentInfo(data.playerBlack.userInfo))
         }
-        let initialFen= data.startingPlayer=='black' ?"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1":"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        let initialFen = data.startingPlayer == 'black' ? "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1" : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         dispatch(setInitialFen(initialFen))
         console.log("i am " + playerColor + " is my turn" + isMyTurn)
         // console.log(initialFen)
         dispatch(setMyTurn(isMyTurn))
         setLoading(false)
         // console.log("opponent info ///////////",opponentInfo)
-        setTimeout(()=>{
+        setTimeout(() => {
           handleNavigation()
-        },2000)
-        
+        }, 2000)
+
       });
     }
-    start()
+    !gameEnd && start()
+    gameEnd && (()=>{
+      console.log('end')
+      won && dispatch(setCoins(route.params.amount*2))
+      dispatch(clearMatchData())
+  })()
+
+
 
     return () => {
       socket.off("matchMake")
@@ -155,24 +166,45 @@ const MatchMakingScreen = ({ route, navigation }) => {
 
   return (
 
-<ImageBackground style={styles.container} source={require('../assets/images/App-3d-Background.jpg')}>
-    {/* // <ImageBackground source={ludoBackgroundimage} // Replace with your image URL */}
-    {/* //   style={styles.container} */}
-    {/* //   resizeMode="cover" > */}
+    <ImageBackground style={styles.container} source={require('../assets/images/App-3d-Background.jpg')}>
+      {/* // <ImageBackground source={ludoBackgroundimage} // Replace with your image URL */}
+      {/* //   style={styles.container} */}
+      {/* //   resizeMode="cover" > */}
       {
         loading && <TouchableOpacity style={{ position: 'absolute', top: responsiveHeight(3), left: responsiveWidth(7) }} onPress={() => { navigation.goBack() }}>
           <FontAwesome5 name='chevron-left' size={responsiveWidth(8)} color="white" />
         </TouchableOpacity>
       }
-      <View style={styles.card}>
-    
-            <Image style={{ borderRadius: responsiveWidth(4), height: responsiveHeight(13), width: responsiveWidth(27) }} source={userData.profileImage ?{ uri: userData.profileImage }:require('../assets/images/profileEmpty.jpg')} />
-        <View style={{ flexDirection: 'row', alignItems:'center', marginVertical: responsiveHeight(1), marginHorizontal: responsiveHeight(.5) }}>
-          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Ant name='star' size={responsiveWidth(6)} color='orange' />
-            <Text style={{ position: 'absolute', top: responsiveWidth(1.2), left: responsiveWidth(2.3), color: 'black', fontWeight: 'bold', fontSize: responsiveWidth(3) }}>3</Text>
+      {
+        gameEnd && <TouchableOpacity style={{ position: 'absolute', top: responsiveHeight(3), left: responsiveWidth(7) }} onPress={() => { navigation.goBack() }}>
+          <FontAwesome5 name='chevron-left' size={responsiveWidth(8)} color="white" />
+        </TouchableOpacity>
+      }
+      <View style={{width:responsiveWidth(35),height:responsiveHeight(28),justifyContent:'center',alignItems:'center'}}>
+        {gameEnd&&won&&<LottieView
+          source={require('../animation/coinsAnimation.json')} // Add your Lottie stars animation here
+          autoPlay
+          loop
+          style={styles.stars}
+        />
+        }{
+          gameEnd&&
+          <Text style={{color:'white',position: 'absolute',
+          top:0,
+          left: responsiveWidth(10),
+          right: 0,
+          bottom: -10,
+          zIndex: 2}}>{won?'Winner':'Losser'}</Text>
+}
+        <View style={styles.card}>
+          <Image style={{ borderRadius: responsiveWidth(4), height: responsiveHeight(13), width: responsiveWidth(27) }} source={userData.profileImage ? { uri: userData.profileImage } : require('../assets/images/profileEmpty.jpg')} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: responsiveHeight(1), marginHorizontal: responsiveHeight(.5) }}>
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Ant name='star' size={responsiveWidth(6)} color='orange' />
+              <Text style={{ position: 'absolute', top: responsiveWidth(1.2), left: responsiveWidth(2.3), color: 'black', fontWeight: 'bold', fontSize: responsiveWidth(3) }}>3</Text>
+            </View>
+            <Text style={{ marginLeft: responsiveWidth(1), color: 'white', fontWeight: 'bold', fontSize: responsiveWidth(3) }}>{userData.name}</Text>
           </View>
-          <Text style={{ marginLeft: responsiveWidth(1), color: 'white', fontWeight: 'bold', fontSize: responsiveWidth(3) }}>{userData.name}</Text>
         </View>
       </View>
       <View style={styles.amount}>
@@ -191,9 +223,23 @@ const MatchMakingScreen = ({ route, navigation }) => {
             <View style={{ backgroundColor: 'gray', width: responsiveWidth(15), height: responsiveHeight(2), marginLeft: responsiveWidth(1) }}></View>
           </View>
         </Animated.View> :
+         <View style={{width:responsiveWidth(35),height:responsiveHeight(28),justifyContent:'center',alignItems:'center'}}>
+         {gameEnd&&!won&&<LottieView
+           source={require('../animation/coinsAnimation.json')} // Add your Lottie stars animation here
+           autoPlay
+           loop
+           style={styles.stars}
+         />
+         }
+          {gameEnd && <Text style={{color:'white',position: 'absolute',
+           top:0,
+           left: responsiveWidth(10),
+           right: 0,
+           bottom: -10,
+           zIndex: 2}}>{!won?'Winner':'Losser'}</Text>}
           <Animated.View style={[styles.card, { transform: [{ translateY }] }]}>
-<Image style={{ borderRadius: responsiveWidth(4), height: responsiveHeight(13), width: responsiveWidth(27) }} source={opponentInfo.profileImage ?{ uri: opponentInfo.profileImage }:require('../assets/images/profileEmpty.jpg')} />
-       <View style={{ flexDirection: 'row',alignItems:'center', marginVertical: responsiveHeight(1), marginHorizontal: responsiveHeight(.5) }}>
+            <Image style={{ borderRadius: responsiveWidth(4), height: responsiveHeight(13), width: responsiveWidth(27) }} source={opponentInfo.profileImage ? { uri: opponentInfo.profileImage } : require('../assets/images/profileEmpty.jpg')} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: responsiveHeight(1), marginHorizontal: responsiveHeight(.5) }}>
               <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Ant name='star' size={responsiveWidth(6)} color='orange' />
                 <Text style={{ position: 'absolute', top: responsiveWidth(1.2), left: responsiveWidth(2.3), color: 'black', fontWeight: 'bold', fontSize: responsiveWidth(3) }}>3</Text>
@@ -201,6 +247,7 @@ const MatchMakingScreen = ({ route, navigation }) => {
               <Text style={{ marginLeft: responsiveWidth(1), color: 'white', fontWeight: 'bold', fontSize: responsiveWidth(3) }}>{opponentInfo.name}</Text>
             </View>
           </Animated.View>
+          </View>
       }
 
 
@@ -218,8 +265,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#050B18'
   },
   card: {
-    // width: responsiveWidth(28),
-    // height: responsiveHeight(20),
+    width: responsiveWidth(28),
+    height: responsiveHeight(20),
     // padding: responsiveWidth(1),
     backgroundColor: 'black',
     borderRadius: responsiveWidth(4),
@@ -235,7 +282,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderColor: 'black',
     borderWidth: 2
-  }
+  } ,
+  stars: {
+    position: 'absolute',
+    top:responsiveHeight(-9),
+    left: 0,
+    right: 0,
+    bottom: -10,
+    zIndex: 2
+  },
 });
 
 export default MatchMakingScreen

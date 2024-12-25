@@ -17,8 +17,11 @@ const userSlice = createSlice({
       state.token = null;
       state.userData = null;
     },
+    setCoins(state,action){
+      state.userData.coins+=action.payload
+    }
   },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser ,setCoins} = userSlice.actions;
 export default userSlice.reducer;
