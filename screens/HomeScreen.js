@@ -40,7 +40,9 @@ const HomeScreen = ({ navigation }) => {
     { id: '4', title: 'Event 4', description: 'Buy 1 get 1 offer', image: 'https://via.placeholder.com/150' },
     { id: '5', title: 'Event 5', description: 'Exclusive Deal', image: 'https://via.placeholder.com/150' },
   ];
-
+  const data = useSelector((state) => state.match)
+// console.log(userData.coins,won)
+// console.log(data)
 
 
   // animation on flatlist

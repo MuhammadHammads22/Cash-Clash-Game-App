@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   matchId: '',
+  tier:null,
   initialFen: '',
   gameEnd:false,
   player: '',
@@ -45,7 +46,8 @@ const matchSlice = createSlice({
     },
     clearMatchData(state) {
       state.player = '';
-      state.won=''
+      state.won=false
+      state.tier=null,
       state.isMyTurn = false;
       state.initialFen = '';
       state.matchId = '';
@@ -63,6 +65,9 @@ const matchSlice = createSlice({
     // New setters for the new state properties
     setGameOver(state, action) {
       state.game_over = action.payload;
+    },
+    setTier(state, action) {
+      state.tier = action.payload;
     },
     setInCheck(state, action) {
       state.in_check = action.payload;
@@ -104,7 +109,8 @@ export const {
   setInThreefoldRepetition,
   setInsufficientMaterial,
   setWon,
-  setGameEnd
+  setGameEnd,
+  setTier
 } = matchSlice.actions;
 
 export default matchSlice.reducer;
