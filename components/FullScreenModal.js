@@ -23,7 +23,7 @@ const FullScreenModal = ({ gameEnd, won, message }) => {
 
   return (
     <Modal
-      visible={!gameEnd}
+      visible={gameEnd}
       animationType="fade"
       transparent={true} // Full-screen modal
       onRequestClose={() => {
@@ -41,16 +41,21 @@ const FullScreenModal = ({ gameEnd, won, message }) => {
           />
         )}
         {/* Content Container */}
-        <View style={styles.contentContainer}>
+        
           {won ? (
-            <>
+            <View style={styles.contentContainer}>
               <Text style={styles.text}>{m1}</Text>
-              <Text style={styles.text}>{m2}</Text>
-            </>
+              {
+                m2&& <Text style={styles.text}>{m2}</Text>
+              }
+            </View>
           ) : (
-            <Text style={styles.text}>You Lost!</Text>
-          )}
-        </View>
+            
+            <View style={[styles.contentContainer,{left:responsiveWidth(34),top:responsiveHeight(46)}]}>
+              <Text style={styles.text}>{m2}You Lost!</Text>
+            </View>
+          )
+          }
       </View>
     </Modal>
   );

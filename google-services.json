@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1089593275745",
+    "project_id": "cashclashgameapp",
+    "storage_bucket": "cashclashgameapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089593275745:android:8bb2296a37c2701f368120",
+        "android_client_info": {
+          "package_name": "com.shehroz123.gameapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT4fK4lz_-daLW--nOsHCvMJz6uTNzQ34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

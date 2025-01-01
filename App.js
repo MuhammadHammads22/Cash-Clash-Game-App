@@ -8,6 +8,9 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from './store/store';
 import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { registerForPushNotificationsAsync } from './utils/notification';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 
 export default function App() {
   // SplashScreen.preventAutoHideAsync();
@@ -21,6 +24,36 @@ export default function App() {
     
 
   // },[])
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
+  useEffect(() => {
+    // Register for push notifications
+    registerForPushNotificationsAsync().then(token => {
+      if (token) {
+        // TODO: Save the token to your backend or Firebase Firestore
+        // Example: saveTokenToDatabase(userId, token);
+      }
+    });
+
+    // Listener for incoming notifications when the app is foregrounded
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification Received:', notification);
+    });
+
+    // Listener for user interactions with notifications (e.g., tapping on them)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Notification Clicked:', response);
+      // TODO: Navigate to specific screen based on notification data
+    });
+
+    return () => {
+      // Clean up listeners on unmount
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
   
   return (
     <Provider store={store}>

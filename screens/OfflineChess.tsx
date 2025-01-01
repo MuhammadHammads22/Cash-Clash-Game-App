@@ -39,6 +39,7 @@ import { setCoins } from '../slices/userSlice';
 import LottieView from 'lottie-react-native';
 import { style } from 'twrnc';
 import FullScreenModal from '../components/FullScreenModal'
+import { url } from '../store/urls';
 
 
 const Width = Dimensions.get('window').width;
@@ -86,7 +87,7 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
   const [blackCaptured, setBlackCaptured] = useState<string[]>([]);
   const [whiteCaptured, setWhiteCaptured] = useState<string[]>([]);
   const [message, setMessage] = useState('');
-  const [quit, setQuit] = useState(false);
+  const isOpponentLeftRef = useRef(false); // Ref to track if opponent has left
 
   const animationValue = useRef(new Animated.Value(0)).current;
   // Ref for the chessboard
@@ -103,9 +104,13 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
     }
   }, [initialFen, startingFen]);
 
+
+  
+
+
   // Function to handle move actions
   const move = useCallback(
-    (state) => {
+    async(state) => {
       dispatch(setInitialFen(state.fen));
       
       const captured = getCapturedPieces(startingFen, state.fen);
@@ -119,11 +124,41 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
         if (state.in_checkmate) {
           dispatch(setWon(true))
           dispatch(setGameEnd(true))
+          isOpponentLeftRef.current=true
           console.log('user won')
           setMessage('You Won!')
           dispatch(setCoins(tier*2))
+          await fetch(`${url}game/addCoins`, {
+            method: 'POST', // Correct HTTP method, use uppercase "POST"
+            headers: {
+              'Content-Type': 'application/json', // Tell the server that you're sending JSON
+            },
+            body: JSON.stringify({
+              userId: userData._id,
+              amount: tier*2
+            }),
+          })
+            .then((res) => res.json()) // Parse the response as JSON
+            .then((data) => {
+              if(data.success){
+                // Alert.alert('',data.message)
+                console.log(data)
+              }
+              else{
+                console.log(data)
+              }
+              ; // Handle the data received from the server
+            })
+            .catch((err) => {
+              console.error('Error during registration:', err); // Handle errors
+            });
           setTimeout(()=>{
-            navigation.pop(2);
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'HomeGraph' }],
+              })
+            )
             dispatch(clearMatchData())
           },4000)
           
@@ -239,8 +274,6 @@ const PlayLocal = ({ navigation }: LocalGameProps) => {
     },
     [player]
   );
-  const isOpponentLeftRef = useRef(false); // Ref to track if opponent has left
-
 
 useEffect(()=>{
   const backHandler = BackHandler.addEventListener('hardwareBackPress',
@@ -265,7 +298,7 @@ useEffect(()=>{
       
     }
   )
-  socket.once('opponentQuit',(player)=>{
+  socket.once('opponentQuit',async (player)=>{
   console.log(player+'quit')
   isOpponentLeftRef.current = true;
   dispatch(setWon(true))
@@ -273,6 +306,30 @@ useEffect(()=>{
   console.log('user won')
   setMessage('Opponent Quit You Won!')
   dispatch(setCoins(tier*2))
+  await fetch(`${url}game/addCoins`, {
+        method: 'POST', // Correct HTTP method, use uppercase "POST"
+        headers: {
+          'Content-Type': 'application/json', // Tell the server that you're sending JSON
+        },
+        body: JSON.stringify({
+          userId: userData._id,
+          amount: tier*2
+        }),
+      })
+        .then((res) => res.json()) // Parse the response as JSON
+        .then((data) => {
+          if(data.success){
+            // Alert.alert('',data.message)
+            console.log(data)
+          }
+          else{
+            console.log(data)
+          }
+          ; // Handle the data received from the server
+        })
+        .catch((err) => {
+          console.error('Error during registration:', err); // Handle errors
+        });
   setTimeout(()=>{
      navigation.dispatch(
             CommonActions.reset({
@@ -320,9 +377,15 @@ useEffect(()=>{
           if (state.in_checkmate) {
             dispatch(setInCheckmate(true))
             dispatch(setGameEnd(true))
+            isOpponentLeftRef.current=true
           setMessage('You Lost!')
             setTimeout(()=>{
-              navigation.pop(2);
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'HomeGraph' }],
+                })
+              )
               dispatch(clearMatchData())
             },4000)
             // Alert.alert('',"you lose") 
@@ -374,7 +437,7 @@ useEffect(()=>{
 
 
       {/* Opponent's Profile */}
-      <View style={styles.profileContainer}>
+      <View style={[styles.profileContainer,{borderColor:!isMyTurn?'orange':'gray'}]}>
         <Image
           source={
             opponentInfo.profileImage
@@ -426,7 +489,7 @@ useEffect(()=>{
       </View>
 
       {/* User's Profile */}
-      <View style={styles.profileContainer}>
+      <View style={[styles.profileContainer,{borderColor:isMyTurn?'orange':'gray'}]}>
         <Image
           source={
             userData.profileImage
@@ -478,10 +541,13 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     justifyContent: 'flex-start',
-    width: responsiveWidth(100),
+    width: responsiveWidth(90),
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth:2,
+    borderRadius:responsiveWidth(6),
     paddingHorizontal: responsiveWidth(5),
+    paddingVertical:responsiveWidth(3),
     marginVertical: responsiveHeight(1),
   },
   profileImage: {
